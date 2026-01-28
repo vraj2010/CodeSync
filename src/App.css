@@ -1,0 +1,413 @@
+/* =====================================================
+   Fonts
+===================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap');
+
+/* =====================================================
+   Base Reset
+===================================================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #1c1e29, #151722);
+    color: #ffffff;
+    overflow: hidden;
+}
+
+/* =====================================================
+   Header / Navbar
+===================================================== */
+.mainHeader {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 75px;
+    background: rgba(28, 30, 41, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 1000;
+}
+
+.navContent {
+    max-width: 1200px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navLogo {
+    height: 42px;
+}
+
+.logoText {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.logoText span {
+    background: linear-gradient(90deg, #4aed88, #3498db);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.navRight {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.navLink {
+    font-size: 14px;
+    font-weight: 500;
+    color: #bdc3c7;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.navLink:hover {
+    color: #4aed88;
+}
+
+.navBtn {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: 1.5px solid #4aed88;
+    color: #4aed88;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.navBtn:hover {
+    background: #4aed88;
+    color: #1c1e29;
+    box-shadow: 0 0 20px rgba(74, 237, 136, 0.25);
+}
+
+/* =====================================================
+   Home Page Layout
+===================================================== */
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.homePageWrapper {
+    flex: 1;
+    padding-top: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at top right, #2b313a, #151722);
+}
+
+.formWrapper {
+    width: min(560px, 95vw);
+    padding: 40px;
+    border-radius: 20px;
+    background: rgba(40, 42, 54, 0.85);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* =====================================================
+   Form Elements
+===================================================== */
+.mainLabel {
+    margin-bottom: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.inputBox {
+    margin-bottom: 18px;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: #2f3345;
+    color: #ffffff;
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inputBox::placeholder {
+    color: #6b7280;
+}
+
+.inputBox:focus {
+    outline: none;
+    border-color: #4aed88;
+    box-shadow: 0 0 0 2px rgba(74, 237, 136, 0.15);
+    background: #353a50;
+}
+
+.btn {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.joinBtn {
+    align-self: flex-end;
+    width: 130px;
+    background: linear-gradient(135deg, #4aed88, #36d67a);
+    color: #1c1e29;
+    box-shadow: 0 8px 25px rgba(74, 237, 136, 0.35);
+}
+
+.joinBtn:hover {
+    transform: translateY(-2px);
+}
+
+.createInfo {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.createNewBtn {
+    color: #4aed88;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(74, 237, 136, 0.3);
+}
+
+/* =====================================================
+   Footer (SAFE)
+===================================================== */
+.footerMain {
+    padding: 15px 0;
+    background: rgba(40, 42, 54, 0.8);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footerContent {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.authorTag a {
+    color: #4aed88;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* =====================================================
+   Editor Layout
+===================================================== */
+.mainWrap {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    height: 100vh;
+}
+
+.aside {
+    display: flex;
+    flex-direction: column;
+    padding: 18px;
+    background: linear-gradient(180deg, #1c1e29, #171824);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.asideInner {
+    flex: 1;
+}
+
+.logo {
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+.aside .logoText {
+    font-size: 25px;
+}
+
+/* =====================================================
+   Sidebar Section Heading (SINGLE divider)
+===================================================== */
+.asideInner h3 {
+    margin: 12px 0 14px;
+    padding-top: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    position: relative;
+}
+
+.asideInner h3::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0.15),
+        rgba(255, 255, 255, 0)
+    );
+}
+
+/* =====================================================
+   Clients List
+===================================================== */
+.clientsList {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 8px;
+}
+
+.client {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    transition: background 0.2s ease;
+}
+
+.client:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.client > div:first-child {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: #ff4f9a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.client > div:first-child::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 10px;
+    height: 10px;
+    background: #22c55e;
+    border-radius: 50%;
+    border: 2px solid #1c1e29;
+}
+
+.userName {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e5e7eb;
+    text-transform: uppercase;
+}
+
+/* =====================================================
+   Editor Buttons
+===================================================== */
+.copyBtn {
+    margin-top: 10px;
+    background: transparent;
+    border: 1px solid #4aed88;
+    color: #4aed88;
+}
+
+.copyBtn:hover {
+    background: #4aed88;
+    color: #1c1e29;
+}
+
+.leaveBtn {
+    margin-top: 15px;
+    width: 100%;
+    background: linear-gradient(135deg, #ff6b6b, #ff4d4d);
+    color: #ffffff;
+    box-shadow: 0 6px 20px rgba(255, 77, 77, 0.35);
+}
+
+/* =====================================================
+   Code Editor
+===================================================== */
+.editorWrap {
+    background: #1c1e29;
+}
+
+.CodeMirror {
+    min-height: 100vh;
+    padding: 20px;
+    font-size: 16px;
+    line-height: 1.7;
+    background: #1c1e29;
+}
+
+/* =====================================================
+   Responsive
+===================================================== */
+@media (max-width: 768px) {
+    .navRight {
+        display: none;
+    }
+
+    .mainWrap {
+        grid-template-columns: 1fr;
+    }
+
+    .aside {
+        display: none;
+    }
+
+    .footerContent {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
