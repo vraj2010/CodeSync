@@ -2,19 +2,36 @@ import React, { useEffect, useRef } from 'react';
 import Codemirror from 'codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/dracula.css';
+// Language modes
 import 'codemirror/mode/javascript/javascript';
+import 'codemirror/mode/python/python';
+import 'codemirror/mode/clike/clike';
+import 'codemirror/mode/go/go';
+import 'codemirror/mode/rust/rust';
+import 'codemirror/mode/ruby/ruby';
+import 'codemirror/mode/php/php';
+import 'codemirror/mode/swift/swift';
+import 'codemirror/mode/shell/shell';
+import 'codemirror/mode/lua/lua';
+import 'codemirror/mode/perl/perl';
+import 'codemirror/mode/r/r';
+import 'codemirror/mode/haskell/haskell';
+import 'codemirror/mode/dart/dart';
+// Addons
 import 'codemirror/addon/edit/closetag';
 import 'codemirror/addon/edit/closebrackets';
 import ACTIONS from '../Actions';
+import { getCodeMirrorMode } from '../utils/languageMapping';
 
-const Editor = ({ socketRef, roomId, onCodeChange }) => {
+const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript' }) => {
     const editorRef = useRef(null);
+
     useEffect(() => {
         async function init() {
             editorRef.current = Codemirror.fromTextArea(
                 document.getElementById('realtimeEditor'),
                 {
-                    mode: { name: 'javascript', json: true },
+                    mode: getCodeMirrorMode(language),
                     theme: 'dracula',
                     autoCloseTags: true,
                     autoCloseBrackets: true,
@@ -37,6 +54,13 @@ const Editor = ({ socketRef, roomId, onCodeChange }) => {
         init();
     }, []);
 
+    // Update mode when language change s
+    useEffect(() => {
+        if (editorRef.current) {
+            editorRef.current.setOption('mode', getCodeMirrorMode(language));
+        }
+    }, [language]);
+
     useEffect(() => {
         if (socketRef.current) {
             socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code }) => {
@@ -55,3 +79,4 @@ const Editor = ({ socketRef, roomId, onCodeChange }) => {
 };
 
 export default Editor;
+

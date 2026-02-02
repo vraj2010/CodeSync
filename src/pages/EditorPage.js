@@ -1,9 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import ACTIONS from '../Actions';
 import Client from '../components/Client';
 import Editor from '../components/Editor';
+import OutputPanel from '../components/OutputPanel';
 import { initSocket } from '../socket';
+import { executeCode } from '../api/codeApi';
+import { SUPPORTED_LANGUAGES, getPistonLanguage } from '../utils/languageMapping';
 import {
     useLocation,
     useNavigate,
@@ -18,6 +21,13 @@ const EditorPage = () => {
     const { roomId } = useParams();
     const reactNavigator = useNavigate();
     const [clients, setClients] = useState([]);
+
+    // Code execution state
+    const [selectedLanguage, setSelectedLanguage] = useState('javascript');
+    const [output, setOutput] = useState('');
+    const [isError, setIsError] = useState(false);
+    const [isRunning, setIsRunning] = useState(false);
+    const isRunningRef = useRef(false); // Prevent duplicate requests
 
     useEffect(() => {
         const init = async () => {
@@ -49,6 +59,11 @@ const EditorPage = () => {
                         code: codeRef.current,
                         socketId,
                     });
+                    // Sync language to new user
+                    socketRef.current.emit(ACTIONS.SYNC_LANGUAGE, {
+                        language: selectedLanguage,
+                        socketId,
+                    });
                 }
             );
 
@@ -64,14 +79,92 @@ const EditorPage = () => {
                     });
                 }
             );
+
+            // Listen for language changes from other users
+            socketRef.current.on(ACTIONS.LANGUAGE_CHANGE, ({ language }) => {
+                setSelectedLanguage(language);
+            });
+
+            // Listen for code output from other users
+            socketRef.current.on(ACTIONS.CODE_OUTPUT, ({ output, isError }) => {
+                setOutput(output);
+                setIsError(isError);
+                setIsRunning(false);
+                isRunningRef.current = false;
+            });
         };
         init();
         return () => {
             socketRef.current.disconnect();
             socketRef.current.off(ACTIONS.JOINED);
             socketRef.current.off(ACTIONS.DISCONNECTED);
+            socketRef.current.off(ACTIONS.LANGUAGE_CHANGE);
+            socketRef.current.off(ACTIONS.CODE_OUTPUT);
         };
     }, []);
+
+    // Handle language change
+    const handleLanguageChange = useCallback((e) => {
+        const language = e.target.value;
+        setSelectedLanguage(language);
+        // Emit to other users
+        if (socketRef.current) {
+            socketRef.current.emit(ACTIONS.LANGUAGE_CHANGE, {
+                roomId,
+                language,
+            });
+        }
+    }, [roomId]);
+
+    // Handle code execution - prevents duplicate requests
+    const handleRunCode = useCallback(async () => {
+        // Prevent duplicate requests
+        if (isRunningRef.current) {
+            return;
+        }
+
+        const code = codeRef.current;
+        if (!code || code.trim() === '') {
+            toast.error('Please write some code first.');
+            return;
+        }
+
+        isRunningRef.current = true;
+        setIsRunning(true);
+        setOutput('');
+        setIsError(false);
+
+        try {
+            const pistonLanguage = getPistonLanguage(selectedLanguage);
+            const result = await executeCode(code, pistonLanguage);
+
+            setOutput(result.output);
+            setIsError(result.isError);
+
+            // Sync output to other users
+            if (socketRef.current) {
+                socketRef.current.emit(ACTIONS.CODE_OUTPUT, {
+                    roomId,
+                    output: result.output,
+                    isError: result.isError,
+                });
+            }
+
+            if (result.isError) {
+                toast.error('Execution completed with errors.');
+            } else {
+                toast.success('Code executed successfully!');
+            }
+        } catch (error) {
+            console.error('Execution error:', error);
+            setOutput('Error: Failed to execute code');
+            setIsError(true);
+            toast.error('Failed to execute code.');
+        } finally {
+            setIsRunning(false);
+            isRunningRef.current = false;
+        }
+    }, [selectedLanguage, roomId]);
 
     async function copyRoomId() {
         try {
@@ -107,7 +200,7 @@ const EditorPage = () => {
                                     Code<span>Sync</span>
                                 </h1>
                             </div>
-                        </div>  
+                        </div>
                     </div>
 
                     <h3>Connected Users</h3>
@@ -131,13 +224,57 @@ const EditorPage = () => {
                 </button>
             </div>
 
-            <div className="editorWrap">
-                <Editor
-                    socketRef={socketRef}
-                    roomId={roomId}
-                    onCodeChange={(code) => {
-                        codeRef.current = code;
-                    }}
+            <div className="editorContainer">
+                <div className="editorHeader">
+                    <div className="languageSelector">
+                        <label htmlFor="language">Language:</label>
+                        <select
+                            id="language"
+                            className="languageSelect"
+                            value={selectedLanguage}
+                            onChange={handleLanguageChange}
+                        >
+                            {SUPPORTED_LANGUAGES.map((lang) => (
+                                <option key={lang.id} value={lang.id}>
+                                    {lang.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <button
+                        className={`btn runBtn ${isRunning ? 'running' : ''}`}
+                        onClick={handleRunCode}
+                        disabled={isRunning}
+                    >
+                        {isRunning ? (
+                            <>
+                                <span className="spinner"></span>
+                                Running...
+                            </>
+                        ) : (
+                            <>
+                                <span className="playIcon">▶</span>
+                                Run Code
+                            </>
+                        )}
+                    </button>
+                </div>
+
+                <div className="editorWrap">
+                    <Editor
+                        socketRef={socketRef}
+                        roomId={roomId}
+                        language={selectedLanguage}
+                        onCodeChange={(code) => {
+                            codeRef.current = code;
+                        }}
+                    />
+                </div>
+
+                <OutputPanel
+                    output={output}
+                    isError={isError}
+                    isRunning={isRunning}
                 />
             </div>
         </div>

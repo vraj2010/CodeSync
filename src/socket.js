@@ -3,9 +3,15 @@ import { io } from 'socket.io-client';
 export const initSocket = async () => {
     const options = {
         'force new connection': true,
-        reconnectionAttempt: 'Infinity',
+        reconnectionAttempts: Infinity,
         timeout: 10000,
-        transports: ['websocket'],
+        transports: ['websocket', 'polling'],
+        withCredentials: true,
     };
-    return io(process.env.REACT_APP_BACKEND_URL, options);
+
+    // In production (Render), frontend and backend are served from the same origin
+    // In development, use the environment variable
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || window.location.origin;
+
+    return io(backendUrl, options);
 };

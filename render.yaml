@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: code-sync
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run server:prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: RENDER_EXTERNAL_URL
+        sync: false
+      - key: JUDGE0_API_URL
+        sync: false
+      - key: JUDGE0_API_KEY
+        sync: false
+
+# Note: RENDER_EXTERNAL_URL will be auto-filled by Render with your app's URL
+# You can also set FRONTEND_URL if you deploy frontend separately

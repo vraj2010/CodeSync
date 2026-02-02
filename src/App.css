@@ -289,11 +289,9 @@ body {
     left: 0;
     width: 100%;
     height: 1px;
-    background: linear-gradient(
-        to right,
-        rgba(255, 255, 255, 0.15),
-        rgba(255, 255, 255, 0)
-    );
+    background: linear-gradient(to right,
+            rgba(255, 255, 255, 0.15),
+            rgba(255, 255, 255, 0));
 }
 
 /* =====================================================
@@ -319,7 +317,7 @@ body {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.client > div:first-child {
+.client>div:first-child {
     position: relative;
     width: 44px;
     height: 44px;
@@ -332,7 +330,7 @@ body {
     color: #ffffff;
 }
 
-.client > div:first-child::after {
+.client>div:first-child::after {
     content: '';
     position: absolute;
     top: -3px;
@@ -375,18 +373,213 @@ body {
 }
 
 /* =====================================================
+   Code Editor Layout
+===================================================== */
+.editorContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.editorHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: rgba(28, 30, 41, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+}
+
+.languageSelector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.languageSelector label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #94a3b8;
+}
+
+.languageSelect {
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #2f3345;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    min-width: 150px;
+}
+
+.languageSelect:focus {
+    outline: none;
+    border-color: #4aed88;
+    box-shadow: 0 0 0 2px rgba(74, 237, 136, 0.15);
+}
+
+.languageSelect option {
+    background: #2f3345;
+    color: #ffffff;
+}
+
+/* =====================================================
+   Run Button
+===================================================== */
+.runBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #4aed88, #36d67a);
+    color: #1c1e29;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    box-shadow: 0 4px 15px rgba(74, 237, 136, 0.3);
+}
+
+.runBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 237, 136, 0.4);
+}
+
+.runBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.runBtn.running {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.playIcon {
+    font-size: 12px;
+}
+
+/* =====================================================
+   Spinner Animation
+===================================================== */
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.spinner.large {
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =====================================================
    Code Editor
 ===================================================== */
 .editorWrap {
+    flex: 1;
     background: #1c1e29;
+    overflow: auto;
 }
 
 .CodeMirror {
-    min-height: 100vh;
+    height: 100% !important;
+    min-height: auto;
     padding: 20px;
     font-size: 16px;
     line-height: 1.7;
     background: #1c1e29;
+}
+
+/* =====================================================
+   Output Panel
+===================================================== */
+.outputPanel {
+    display: flex;
+    flex-direction: column;
+    background: #1a1c26;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    max-height: 250px;
+    min-height: 120px;
+}
+
+.outputHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(28, 30, 41, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.outputTitle {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94a3b8;
+}
+
+.runningIndicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #3498db;
+    font-weight: 500;
+}
+
+.outputContent {
+    flex: 1;
+    padding: 16px;
+    overflow: auto;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #e5e7eb;
+}
+
+.outputContent pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.outputContent.error {
+    color: #ff6b6b;
+}
+
+.outputContent.error pre {
+    color: #ff6b6b;
+}
+
+.outputPlaceholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    height: 100%;
+    color: #6b7280;
+    font-style: italic;
 }
 
 /* =====================================================
@@ -409,5 +602,29 @@ body {
         flex-direction: column;
         gap: 10px;
         text-align: center;
+    }
+
+    .editorHeader {
+        flex-direction: column;
+        gap: 12px;
+        padding: 10px 15px;
+    }
+
+    .languageSelector {
+        width: 100%;
+    }
+
+    .languageSelect {
+        flex: 1;
+    }
+
+    .runBtn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .outputPanel {
+        max-height: 200px;
+        min-height: 100px;
     }
 }
