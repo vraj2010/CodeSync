@@ -68,6 +68,9 @@ app.use((req, res, next) => {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
+// Store room state for syncing new users
+const roomState = {};
+
 const userSocketMap = {};
 function getAllConnectedClients(roomId) {
     // Map
@@ -81,6 +84,19 @@ function getAllConnectedClients(roomId) {
     );
 }
 
+// Get or create room state
+function getRoomState(roomId) {
+    if (!roomState[roomId]) {
+        roomState[roomId] = {
+            code: '',
+            language: 'javascript',
+            input: '',
+            version: 0
+        };
+    }
+    return roomState[roomId];
+}
+
 io.on('connection', (socket) => {
     console.log('🔌 Socket connected:', socket.id);
 
@@ -89,6 +105,10 @@ io.on('connection', (socket) => {
         socket.join(roomId);
         const clients = getAllConnectedClients(roomId);
         console.log(`👤 ${username} joined room ${roomId}. Total clients: ${clients.length}`);
+
+        // Get room state for syncing
+        const state = getRoomState(roomId);
+
         clients.forEach(({ socketId }) => {
             io.to(socketId).emit(ACTIONS.JOINED, {
                 clients,
@@ -96,9 +116,32 @@ io.on('connection', (socket) => {
                 socketId: socket.id,
             });
         });
+
+        // Sync current room state to the new user
+        if (clients.length > 1) {
+            // Send current code to the new user
+            io.to(socket.id).emit(ACTIONS.CODE_CHANGE, { code: state.code });
+            io.to(socket.id).emit(ACTIONS.LANGUAGE_CHANGE, { language: state.language });
+            io.to(socket.id).emit(ACTIONS.INPUT_CHANGE, { input: state.input });
+        }
     });
 
+    // Delta-based code sync - more efficient for real-time editing
+    socket.on(ACTIONS.CODE_DELTA, ({ roomId, delta }) => {
+        const state = getRoomState(roomId);
+        state.version++;
+
+        // Broadcast delta to all other users in the room
+        socket.in(roomId).emit(ACTIONS.CODE_DELTA, {
+            delta,
+            socketId: socket.id // Include sender ID so receiver can filter
+        });
+    });
+
+    // Full code change (for backwards compatibility and initial sync)
     socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
+        const state = getRoomState(roomId);
+        state.code = code;
         socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
     });
 
@@ -108,6 +151,8 @@ io.on('connection', (socket) => {
 
     // Language change sync
     socket.on(ACTIONS.LANGUAGE_CHANGE, ({ roomId, language }) => {
+        const state = getRoomState(roomId);
+        state.language = language;
         socket.in(roomId).emit(ACTIONS.LANGUAGE_CHANGE, { language });
     });
 
@@ -131,6 +176,8 @@ io.on('connection', (socket) => {
 
     // Input change sync
     socket.on(ACTIONS.INPUT_CHANGE, ({ roomId, input }) => {
+        const state = getRoomState(roomId);
+        state.input = input;
         socket.in(roomId).emit(ACTIONS.INPUT_CHANGE, { input });
     });
 
@@ -145,6 +192,12 @@ io.on('connection', (socket) => {
                 socketId: socket.id,
                 username: userSocketMap[socket.id],
             });
+
+            // Clean up empty rooms
+            const clients = getAllConnectedClients(roomId);
+            if (clients.length <= 1) {
+                delete roomState[roomId];
+            }
         });
         delete userSocketMap[socket.id];
         socket.leave();

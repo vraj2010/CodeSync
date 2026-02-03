@@ -28,6 +28,8 @@ const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clie
     const editorRef = useRef(null);
     const remoteCursorsRef = useRef({}); // Store remote cursor elements
     const isRemoteChange = useRef(false); // Track if change is from remote
+    const pendingChanges = useRef([]); // Queue for changes during remote updates
+    const documentVersion = useRef(0); // Track document version for conflict resolution
 
     // Create or update remote cursor element
     const updateRemoteCursor = useCallback((username, position, socketId) => {
@@ -89,6 +91,29 @@ const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clie
         }
     }, []);
 
+    // Apply a delta change to the editor
+    const applyDelta = useCallback((delta) => {
+        if (!editorRef.current) return;
+
+        const editor = editorRef.current;
+        isRemoteChange.current = true;
+
+        try {
+            const { from, to, text, removed } = delta;
+
+            // Apply the change
+            editor.replaceRange(
+                text.join('\n'),
+                { line: from.line, ch: from.ch },
+                { line: to.line, ch: to.ch }
+            );
+        } catch (e) {
+            console.error('Error applying delta:', e);
+        }
+
+        isRemoteChange.current = false;
+    }, []);
+
     useEffect(() => {
         async function init() {
             editorRef.current = Codemirror.fromTextArea(
@@ -102,16 +127,28 @@ const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clie
                 }
             );
 
-            // Handle code changes
-            editorRef.current.on('change', (instance, changes) => {
-                const { origin } = changes;
+            // Handle code changes - send delta instead of full code
+            editorRef.current.on('change', (instance, change) => {
                 const code = instance.getValue();
                 onCodeChange(code);
 
-                if (origin !== 'setValue' && !isRemoteChange.current) {
-                    socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+                // Only send if it's a local change (not setValue, not remote)
+                if (change.origin !== 'setValue' && !isRemoteChange.current) {
+                    documentVersion.current++;
+
+                    // Create delta object with change details
+                    const delta = {
+                        from: { line: change.from.line, ch: change.from.ch },
+                        to: { line: change.to.line, ch: change.to.ch },
+                        text: change.text,
+                        removed: change.removed,
+                        origin: change.origin,
+                        version: documentVersion.current
+                    };
+
+                    socketRef.current.emit(ACTIONS.CODE_DELTA, {
                         roomId,
-                        code,
+                        delta,
                     });
                 }
             });
@@ -141,13 +178,22 @@ const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clie
     // Handle socket events
     useEffect(() => {
         if (socketRef.current) {
-            // Handle remote code changes
+            // Handle remote delta changes (preferred method)
+            const handleDelta = ({ delta, socketId }) => {
+                if (editorRef.current && socketId !== socketRef.current.id) {
+                    applyDelta(delta);
+                }
+            };
+
+            // Handle full code sync (for new users joining)
             const handleCodeChange = ({ code }) => {
                 if (code !== null && editorRef.current) {
                     isRemoteChange.current = true;
                     const cursor = editorRef.current.getCursor();
+                    const scrollInfo = editorRef.current.getScrollInfo();
                     editorRef.current.setValue(code);
                     editorRef.current.setCursor(cursor);
+                    editorRef.current.scrollTo(scrollInfo.left, scrollInfo.top);
                     isRemoteChange.current = false;
                 }
             };
@@ -164,17 +210,19 @@ const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clie
                 removeRemoteCursor(socketId);
             };
 
+            socketRef.current.on(ACTIONS.CODE_DELTA, handleDelta);
             socketRef.current.on(ACTIONS.CODE_CHANGE, handleCodeChange);
             socketRef.current.on(ACTIONS.CURSOR_CHANGE, handleCursorChange);
             socketRef.current.on(ACTIONS.DISCONNECTED, handleDisconnect);
 
             return () => {
+                socketRef.current.off(ACTIONS.CODE_DELTA, handleDelta);
                 socketRef.current.off(ACTIONS.CODE_CHANGE, handleCodeChange);
                 socketRef.current.off(ACTIONS.CURSOR_CHANGE, handleCursorChange);
                 socketRef.current.off(ACTIONS.DISCONNECTED, handleDisconnect);
             };
         }
-    }, [socketRef.current, currentUsername, updateRemoteCursor, removeRemoteCursor]);
+    }, [socketRef.current, currentUsername, updateRemoteCursor, removeRemoteCursor, applyDelta]);
 
     return <textarea id="realtimeEditor"></textarea>;
 };

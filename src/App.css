@@ -976,3 +976,38 @@ textarea {
         height: 1px;
     }
 }
+
+/* =====================================================
+   Remote Cursor Styles (Collaborative Editing)
+===================================================== */
+.remote-cursor {
+    position: relative;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.remote-cursor-label {
+    animation: cursorFadeIn 0.2s ease-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes cursorFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* CodeMirror cursor styling improvements */
+.CodeMirror-cursor {
+    border-left-width: 2px !important;
+}
+
+.CodeMirror-focused .CodeMirror-cursor {
+    border-left-color: #4aed88 !important;
+}

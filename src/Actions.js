@@ -3,6 +3,7 @@ const ACTIONS = {
     JOINED: 'joined',
     DISCONNECTED: 'disconnected',
     CODE_CHANGE: 'code-change',
+    CODE_DELTA: 'code-delta', // Delta-based sync for real-time collaboration
     SYNC_CODE: 'sync-code',
     LEAVE: 'leave',
     LANGUAGE_CHANGE: 'language-change',
@@ -16,5 +17,3 @@ const ACTIONS = {
 };
 
 module.exports = ACTIONS;
-
-
