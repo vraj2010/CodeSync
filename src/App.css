@@ -27,6 +27,80 @@ body {
 }
 
 /* =====================================================
+   Custom Scrollbar (Global)
+===================================================== */
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+/* Hide scrollbar when not needed - only show on overflow */
+.paneContent,
+.stdinTextarea,
+textarea {
+    overflow: auto;
+}
+
+/* Hide scrollbar completely by default */
+.paneContent::-webkit-scrollbar,
+.stdinTextarea::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    background: transparent;
+}
+
+/* Show thin scrollbar only on hover */
+.paneContent:hover::-webkit-scrollbar,
+.stdinTextarea:hover::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.paneContent:hover::-webkit-scrollbar-thumb,
+.stdinTextarea:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+.paneContent:hover::-webkit-scrollbar-thumb:hover,
+.stdinTextarea:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(74, 237, 136, 0.5);
+}
+
+.paneContent::-webkit-scrollbar-track,
+.stdinTextarea::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* =====================================================
    Header / Navbar
 ===================================================== */
 .mainHeader {
@@ -386,46 +460,114 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
-    background: rgba(28, 30, 41, 0.95);
+    padding: 10px 16px;
+    background: rgba(28, 30, 41, 0.98);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
 }
 
-.languageSelector {
+.editorTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #e5e7eb;
+}
+
+.codeIcon {
+    color: #4aed88;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+}
+
+.headerControls {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.languageSelector label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #94a3b8;
+/* Custom Language Dropdown */
+.languageDropdown {
+    position: relative;
 }
 
-.languageSelect {
-    padding: 10px 16px;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: #2f3345;
-    color: #ffffff;
-    font-size: 14px;
+.languageBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: #e5e7eb;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    min-width: 150px;
+    transition: all 0.15s ease;
+    white-space: nowrap;
 }
 
-.languageSelect:focus {
-    outline: none;
-    border-color: #4aed88;
-    box-shadow: 0 0 0 2px rgba(74, 237, 136, 0.15);
+.languageBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-.languageSelect option {
-    background: #2f3345;
-    color: #ffffff;
+.dropdownArrow {
+    font-size: 8px;
+    opacity: 0.6;
+    margin-left: 4px;
+}
+
+.languageMenu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 8px;
+    background: #2a2d3a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    min-width: 380px;
+}
+
+.languageMenu.show {
+    display: grid;
+}
+
+.languageOption {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.languageOption:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e5e7eb;
+}
+
+.languageOption.selected {
+    color: #4aed88;
+}
+
+.checkmark {
+    color: #4aed88;
+    font-weight: 700;
+    font-size: 12px;
 }
 
 /* =====================================================
@@ -510,67 +652,126 @@ body {
 }
 
 /* =====================================================
-   Output Panel
+   Split Panel Container (50/50)
 ===================================================== */
-.outputPanel {
+.splitPanelContainer {
     display: flex;
-    flex-direction: column;
+    height: 220px;
+    min-height: 150px;
     background: #1a1c26;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    max-height: 250px;
-    min-height: 120px;
 }
 
-.outputHeader {
+.splitPane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.inputPane {
+    border-right: none;
+}
+
+.outputPane {
+    border-left: none;
+}
+
+/* Pane Header */
+.paneHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 16px;
-    background: rgba(28, 30, 41, 0.9);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 8px 12px;
+    background: rgba(28, 30, 41, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    min-height: 34px;
 }
 
-.outputTitle {
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #94a3b8;
-}
-
-.runningIndicator {
+.paneTitle {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 13px;
-    color: #3498db;
-    font-weight: 500;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
 }
 
-.outputContent {
+.runningBadge {
+    display: flex;
+    align-items: center;
+    margin-left: 6px;
+}
+
+/* Pane Content */
+.paneContent {
     flex: 1;
-    padding: 16px;
-    overflow: auto;
+    overflow: hidden;
+    padding: 12px 14px;
     font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.6;
     color: #e5e7eb;
 }
 
-.outputContent pre {
+/* Input pane - no right padding so scrollbar is at edge */
+.inputPane .paneContent {
+    padding-right: 0;
+}
+
+/* Output pane needs scrolling for output content */
+.outputPane .paneContent {
+    overflow: auto;
+}
+
+.paneContent.error {
+    color: #ff6b6b;
+}
+
+.paneContent.error .outputText {
+    color: #ff6b6b;
+}
+
+/* Input Textarea */
+.stdinTextarea {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #e5e7eb;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 400;
+    line-height: inherit;
+    resize: none;
+    outline: none;
+    overflow: auto;
+}
+
+.stdinTextarea::placeholder {
+    color: #4b5563;
+    font-style: normal;
+}
+
+.stdinTextarea:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Output Text */
+.outputText {
     margin: 0;
     white-space: pre-wrap;
     word-wrap: break-word;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-weight: 400;
 }
 
-.outputContent.error {
-    color: #ff6b6b;
-}
-
-.outputContent.error pre {
-    color: #ff6b6b;
-}
-
+/* Placeholder */
 .outputPlaceholder {
     display: flex;
     flex-direction: column;
@@ -579,7 +780,33 @@ body {
     gap: 12px;
     height: 100%;
     color: #6b7280;
-    font-style: italic;
+    font-style: normal;
+    font-size: 15px;
+}
+
+.placeholderIcon {
+    font-size: 24px;
+    opacity: 0.5;
+}
+
+/* Divider */
+.splitDivider {
+    width: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+/* Spinner Sizes */
+.spinner.small {
+    width: 12px;
+    height: 12px;
+    border-width: 1.5px;
+}
+
+.spinner.large {
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
 }
 
 /* =====================================================
@@ -734,12 +961,18 @@ body {
         justify-content: center;
     }
 
-    .outputPanel {
-        max-height: 200px;
-        min-height: 100px;
+    /* Stack split panels vertically on mobile */
+    .splitPanelContainer {
+        flex-direction: column;
+        height: auto;
     }
 
-    .stdinInput {
-        min-height: 60px;
+    .splitPane {
+        min-height: 120px;
+    }
+
+    .splitDivider {
+        width: 100%;
+        height: 1px;
     }
 }

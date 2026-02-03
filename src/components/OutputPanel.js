@@ -1,69 +1,56 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 const OutputPanel = ({ output, isError, isRunning, input, onInputChange }) => {
-    const [showInput, setShowInput] = useState(false);
-
     return (
-        <div className="outputPanel">
-            <div className="outputHeader">
-                <div className="outputTabs">
-                    <button
-                        className={`outputTab ${showInput ? 'active' : ''}`}
-                        onClick={() => setShowInput(true)}
-                    >
-                        Input (stdin)
-                    </button>
-                    <button
-                        className={`outputTab ${!showInput ? 'active' : ''}`}
-                        onClick={() => setShowInput(false)}
-                    >
-                        Output
-                    </button>
+        <div className="splitPanelContainer">
+            {/* Input Panel - Left Side (50%) */}
+            <div className="splitPane inputPane">
+                <div className="paneHeader">
+                    <span className="paneTitle">Input</span>
                 </div>
-                {isRunning && (
-                    <span className="runningIndicator">
-                        <span className="spinner"></span>
-                        Running...
-                    </span>
-                )}
-            </div>
-
-            {showInput ? (
-                <div className="inputContent">
+                <div className="paneContent">
                     <textarea
-                        className="stdinInput"
+                        className="stdinTextarea"
                         value={input}
                         onChange={(e) => onInputChange(e.target.value)}
-                        placeholder="Enter input for your program here (e.g., for cin>>, scanf, input())
-One value per line, or space-separated for multiple inputs
-
-Example:
-5
-hello
-10 20 30"
+                        placeholder="Enter input values here..."
                         disabled={isRunning}
+                        spellCheck={false}
                     />
-                    <div className="inputHelp">
-                        <span className="inputHelpIcon">💡</span>
-                        <span>Works with all languages: C++ (cin), C (scanf), Python (input), Java (Scanner), etc.</span>
-                    </div>
                 </div>
-            ) : (
-                <div className={`outputContent ${isError ? 'error' : ''}`}>
+            </div>
+
+            {/* Divider */}
+            <div className="splitDivider" />
+
+            {/* Output Panel - Right Side (50%) */}
+            <div className="splitPane outputPane">
+                <div className="paneHeader">
+                    <span className="paneTitle">
+                        Output
+                        {isRunning && (
+                            <span className="runningBadge">
+                                <span className="spinner small"></span>
+                            </span>
+                        )}
+                    </span>
+                </div>
+                <div className={`paneContent ${isError ? 'error' : ''}`}>
                     {isRunning ? (
                         <div className="outputPlaceholder">
                             <span className="spinner large"></span>
                             <span>Executing code...</span>
                         </div>
                     ) : output ? (
-                        <pre>{output}</pre>
+                        <pre className="outputText">{output}</pre>
                     ) : (
                         <div className="outputPlaceholder">
-                            Run your code to see output here
+                            <span className="placeholderIcon">▶</span>
+                            <span>Run your code to see output</span>
                         </div>
                     )}
                 </div>
-            )}
+            </div>
         </div>
     );
 };

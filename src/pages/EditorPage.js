@@ -35,6 +35,19 @@ const EditorPage = () => {
     // Get current username
     const currentUsername = location.state?.username;
 
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!e.target.closest('.languageDropdown')) {
+                document.querySelectorAll('.languageMenu').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
     useEffect(() => {
         const init = async () => {
             socketRef.current = await initSocket();
@@ -255,38 +268,58 @@ const EditorPage = () => {
 
             <div className="editorContainer">
                 <div className="editorHeader">
-                    <div className="languageSelector">
-                        <label htmlFor="language">Language:</label>
-                        <select
-                            id="language"
-                            className="languageSelect"
-                            value={selectedLanguage}
-                            onChange={handleLanguageChange}
-                        >
-                            {SUPPORTED_LANGUAGES.map((lang) => (
-                                <option key={lang.id} value={lang.id}>
-                                    {lang.name}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="editorTitle">
+                        <svg className="codeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="20" height="20" fill="currentColor">
+                            <path d="M399.1 1.1c-12.7-3.9-26.1 3.1-30 15.8l-144 464c-3.9 12.7 3.1 26.1 15.8 30s26.1-3.1 30-15.8l144-464c3.9-12.7-3.1-26.1-15.8-30zm71.4 118.5c-9.1 9.7-8.6 24.9 1.1 33.9L580.9 256 471.6 358.5c-9.7 9.1-10.2 24.3-1.1 33.9s24.3 10.2 33.9 1.1l128-120c4.8-4.5 7.6-10.9 7.6-17.5s-2.7-13-7.6-17.5l-128-120c-9.7-9.1-24.9-8.6-33.9 1.1zm-301 0c-9.1-9.7-24.3-10.2-33.9-1.1l-128 120C2.7 243 0 249.4 0 256s2.7 13 7.6 17.5l128 120c9.7 9.1 24.9 8.6 33.9-1.1s8.6-24.9-1.1-33.9L59.1 256 168.4 153.5c9.7-9.1 10.2-24.3 1.1-33.9z" />
+                        </svg>
+                        <span>Code</span>
                     </div>
-                    <button
-                        className={`btn runBtn ${isRunning ? 'running' : ''}`}
-                        onClick={handleRunCode}
-                        disabled={isRunning}
-                    >
-                        {isRunning ? (
-                            <>
-                                <span className="spinner"></span>
-                                Running...
-                            </>
-                        ) : (
-                            <>
-                                <span className="playIcon">▶</span>
-                                Run Code
-                            </>
-                        )}
-                    </button>
+                    <div className="headerControls">
+                        <div className="languageDropdown">
+                            <button
+                                className="languageBtn"
+                                onClick={(e) => {
+                                    const dropdown = e.currentTarget.nextElementSibling;
+                                    dropdown.classList.toggle('show');
+                                }}
+                            >
+                                {SUPPORTED_LANGUAGES.find(l => l.id === selectedLanguage)?.name || 'Select'}
+                                <span className="dropdownArrow">▼</span>
+                            </button>
+                            <div className="languageMenu">
+                                {SUPPORTED_LANGUAGES.map((lang) => (
+                                    <button
+                                        key={lang.id}
+                                        className={`languageOption ${selectedLanguage === lang.id ? 'selected' : ''}`}
+                                        onClick={(e) => {
+                                            handleLanguageChange({ target: { value: lang.id } });
+                                            e.currentTarget.closest('.languageMenu').classList.remove('show');
+                                        }}
+                                    >
+                                        {selectedLanguage === lang.id && <span className="checkmark">✓</span>}
+                                        {lang.name}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <button
+                            className={`btn runBtn ${isRunning ? 'running' : ''}`}
+                            onClick={handleRunCode}
+                            disabled={isRunning}
+                        >
+                            {isRunning ? (
+                                <>
+                                    <span className="spinner"></span>
+                                    Running...
+                                </>
+                            ) : (
+                                <>
+                                    <span className="playIcon">▶</span>
+                                    Run
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
 
                 <div className="editorWrap">
