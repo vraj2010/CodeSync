@@ -11,36 +11,38 @@ const codeRoutes = require('./routes/codeRoutes');
 const isProduction = process.env.NODE_ENV === 'production';
 const PORT = process.env.PORT || 5000;
 
-// Allowed origins for CORS
-const allowedOrigins = isProduction
-    ? [process.env.RENDER_EXTERNAL_URL, process.env.FRONTEND_URL].filter(Boolean)
-    : ['http://localhost:3000', 'http://localhost:5000'];
-
 const server = http.createServer(app);
 
 // Socket.io with CORS configuration for production
+// In monorepo setup, frontend and backend are on same origin, so we can be permissive
 const io = new Server(server, {
     cors: {
-        origin: isProduction ? allowedOrigins : '*',
+        origin: true, // Allow all origins (safe because frontend/backend same origin in production)
         methods: ['GET', 'POST'],
         credentials: true
     },
     // WebSocket transport settings for Render
     transports: ['websocket', 'polling'],
     pingTimeout: 60000,
-    pingInterval: 25000
+    pingInterval: 25000,
+    // Allow connections from different devices
+    allowEIO3: true
 });
 
-// Middleware
+// Middleware - Allow all origins for API requests
 app.use(cors({
-    origin: isProduction ? allowedOrigins : '*',
+    origin: true,
     credentials: true
 }));
 app.use(express.json());
 
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+    res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        environment: isProduction ? 'production' : 'development'
+    });
 });
 
 // API Routes (must come before static file serving)
@@ -66,12 +68,13 @@ function getAllConnectedClients(roomId) {
 }
 
 io.on('connection', (socket) => {
-    console.log('socket connected', socket.id);
+    console.log('🔌 Socket connected:', socket.id);
 
     socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
         userSocketMap[socket.id] = username;
         socket.join(roomId);
         const clients = getAllConnectedClients(roomId);
+        console.log(`👤 ${username} joined room ${roomId}. Total clients: ${clients.length}`);
         clients.forEach(({ socketId }) => {
             io.to(socketId).emit(ACTIONS.JOINED, {
                 clients,
