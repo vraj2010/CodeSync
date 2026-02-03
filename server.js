@@ -17,23 +17,20 @@ const server = http.createServer(app);
 // In monorepo setup, frontend and backend are on same origin, so we can be permissive
 const io = new Server(server, {
     cors: {
-        origin: true, // Allow all origins (safe because frontend/backend same origin in production)
-        methods: ['GET', 'POST'],
-        credentials: true
+        origin: '*', // Allow all origins
+        methods: ['GET', 'POST']
     },
-    // WebSocket transport settings for Render
-    transports: ['websocket', 'polling'],
+    // Start with polling (more reliable), then upgrade to websocket
+    transports: ['polling', 'websocket'],
+    allowUpgrades: true,
     pingTimeout: 60000,
     pingInterval: 25000,
-    // Allow connections from different devices
+    // Compatibility settings
     allowEIO3: true
 });
 
 // Middleware - Allow all origins for API requests
-app.use(cors({
-    origin: true,
-    credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 // Health check endpoint for Render
