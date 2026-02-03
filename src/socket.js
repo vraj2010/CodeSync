@@ -8,15 +8,19 @@ export const initSocket = async () => {
     console.log('🔌 Connecting to socket server:', backendUrl);
 
     const options = {
-        'force new connection': true,
+        // Force a new connection each time
+        forceNew: true,
+        // Reconnection settings
+        reconnection: true,
         reconnectionAttempts: Infinity,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
-        timeout: 20000,
-        // Start with polling (more reliable), then upgrade to websocket
-        transports: ['polling', 'websocket'],
-        upgrade: true,
-        rememberUpgrade: true,
+        // Timeout settings (increased for cloud hosting)
+        timeout: 60000,
+        // Use only polling for Render compatibility
+        transports: ['polling'],
+        // Path must match server
+        path: '/socket.io/',
     };
 
     const socket = io(backendUrl, options);
@@ -24,12 +28,20 @@ export const initSocket = async () => {
     // Debug connection events
     socket.on('connect', () => {
         console.log('✅ Socket connected:', socket.id);
+        console.log('📡 Transport:', socket.io.engine.transport.name);
     });
 
     socket.on('connect_error', (error) => {
         console.error('❌ Socket connection error:', error.message);
     });
 
+    socket.on('disconnect', (reason) => {
+        console.log('🔴 Socket disconnected:', reason);
+    });
+
+    socket.on('reconnect', (attemptNumber) => {
+        console.log('🔄 Socket reconnected after', attemptNumber, 'attempts');
+    });
+
     return socket;
 };
-

@@ -13,20 +13,36 @@ const PORT = process.env.PORT || 5000;
 
 const server = http.createServer(app);
 
-// Socket.io with CORS configuration for production
-// In monorepo setup, frontend and backend are on same origin, so we can be permissive
+// Socket.io configuration optimized for Render
 const io = new Server(server, {
     cors: {
-        origin: '*', // Allow all origins
-        methods: ['GET', 'POST']
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization']
     },
-    // Start with polling (more reliable), then upgrade to websocket
-    transports: ['polling', 'websocket'],
-    allowUpgrades: true,
-    pingTimeout: 60000,
-    pingInterval: 25000,
-    // Compatibility settings
-    allowEIO3: true
+    // Use only polling on Render (more reliable than WebSocket through their proxy)
+    transports: ['polling'],
+    // Path must match what client expects
+    path: '/socket.io/',
+    // Increase timeouts for cloud hosting
+    pingTimeout: 120000,
+    pingInterval: 30000,
+    // Upgrade timeout
+    upgradeTimeout: 30000,
+    // Allow requests without credentials
+    cookie: false,
+    // Compatibility
+    allowEIO3: true,
+    // Connection state recovery
+    connectionStateRecovery: {
+        maxDisconnectionDuration: 2 * 60 * 1000,
+        skipMiddlewares: true,
+    }
+});
+
+// Log all socket.io errors
+io.engine.on('connection_error', (err) => {
+    console.error('❌ Socket.io connection error:', err.code, err.message);
 });
 
 // Middleware - Allow all origins for API requests
@@ -38,7 +54,8 @@ app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
-        environment: isProduction ? 'production' : 'development'
+        environment: isProduction ? 'production' : 'development',
+        connectedSockets: io.engine.clientsCount || 0
     });
 });
 
