@@ -120,6 +120,24 @@ io.on('connection', (socket) => {
         socket.in(roomId).emit(ACTIONS.CODE_OUTPUT, { output, isError });
     });
 
+    // Cursor position sync - broadcast to everyone except sender
+    socket.on(ACTIONS.CURSOR_CHANGE, ({ roomId, position, username }) => {
+        socket.in(roomId).emit(ACTIONS.CURSOR_CHANGE, {
+            position,
+            username,
+            socketId: socket.id
+        });
+    });
+
+    // Input change sync
+    socket.on(ACTIONS.INPUT_CHANGE, ({ roomId, input }) => {
+        socket.in(roomId).emit(ACTIONS.INPUT_CHANGE, { input });
+    });
+
+    socket.on(ACTIONS.SYNC_INPUT, ({ socketId, input }) => {
+        io.to(socketId).emit(ACTIONS.INPUT_CHANGE, { input });
+    });
+
     socket.on('disconnecting', () => {
         const rooms = [...socket.rooms];
         rooms.forEach((roomId) => {

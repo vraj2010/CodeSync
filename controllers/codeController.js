@@ -9,7 +9,7 @@ const PISTON_API_URL = 'https://emkc.org/api/v2/piston/execute';
  * @param {Object} res - Express response object
  */
 const executeCode = async (req, res) => {
-    const { language, code } = req.body;
+    const { language, code, stdin } = req.body;
 
     // Validation
     if (!language) {
@@ -32,19 +32,36 @@ const executeCode = async (req, res) => {
             version: '*',
             files: [
                 { content: code }
-            ]
+            ],
+            // Add stdin for user input
+            stdin: stdin || '',
+            // Execution options
+            run_timeout: 10000, // 10 seconds timeout
+            compile_timeout: 10000,
         }, {
             headers: {
                 'Content-Type': 'application/json'
             },
-            timeout: 30000 // 30 second timeout
+            timeout: 30000 // 30 second timeout for the HTTP request
         });
 
-        const { run } = response.data;
+        const { run, compile } = response.data;
+
+        // Check for compile errors first
+        if (compile && compile.stderr && compile.stderr.trim() !== '') {
+            return res.json({
+                output: `Compilation Error:\n${compile.stderr}`,
+                isError: true
+            });
+        }
 
         // Check if there's an error in stderr or if the exit code is non-zero
-        const hasError = run.stderr && run.stderr.trim() !== '';
-        const output = hasError ? run.stderr : run.stdout;
+        const hasError = (run.stderr && run.stderr.trim() !== '') || run.code !== 0;
+
+        // Combine stdout and stderr for complete output
+        let output = '';
+        if (run.stdout) output += run.stdout;
+        if (run.stderr) output += (output ? '\n' : '') + run.stderr;
 
         return res.json({
             output: output || 'No output',

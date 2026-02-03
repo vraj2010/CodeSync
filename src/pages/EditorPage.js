@@ -29,6 +29,12 @@ const EditorPage = () => {
     const [isRunning, setIsRunning] = useState(false);
     const isRunningRef = useRef(false); // Prevent duplicate requests
 
+    // Input state for stdin
+    const [input, setInput] = useState('');
+
+    // Get current username
+    const currentUsername = location.state?.username;
+
     useEffect(() => {
         const init = async () => {
             socketRef.current = await initSocket();
@@ -43,14 +49,14 @@ const EditorPage = () => {
 
             socketRef.current.emit(ACTIONS.JOIN, {
                 roomId,
-                username: location.state?.username,
+                username: currentUsername,
             });
 
             // Listening for joined event
             socketRef.current.on(
                 ACTIONS.JOINED,
                 ({ clients, username, socketId }) => {
-                    if (username !== location.state?.username) {
+                    if (username !== currentUsername) {
                         toast.success(`${username} has joined the workspace.`);
                         console.log(`${username} joined`);
                     }
@@ -62,6 +68,11 @@ const EditorPage = () => {
                     // Sync language to new user
                     socketRef.current.emit(ACTIONS.SYNC_LANGUAGE, {
                         language: selectedLanguage,
+                        socketId,
+                    });
+                    // Sync input to new user
+                    socketRef.current.emit(ACTIONS.SYNC_INPUT, {
+                        input: input,
                         socketId,
                     });
                 }
@@ -92,6 +103,11 @@ const EditorPage = () => {
                 setIsRunning(false);
                 isRunningRef.current = false;
             });
+
+            // Listen for input changes from other users
+            socketRef.current.on(ACTIONS.INPUT_CHANGE, ({ input }) => {
+                setInput(input);
+            });
         };
         init();
         return () => {
@@ -100,6 +116,7 @@ const EditorPage = () => {
             socketRef.current.off(ACTIONS.DISCONNECTED);
             socketRef.current.off(ACTIONS.LANGUAGE_CHANGE);
             socketRef.current.off(ACTIONS.CODE_OUTPUT);
+            socketRef.current.off(ACTIONS.INPUT_CHANGE);
         };
     }, []);
 
@@ -112,6 +129,18 @@ const EditorPage = () => {
             socketRef.current.emit(ACTIONS.LANGUAGE_CHANGE, {
                 roomId,
                 language,
+            });
+        }
+    }, [roomId]);
+
+    // Handle input change
+    const handleInputChange = useCallback((newInput) => {
+        setInput(newInput);
+        // Emit to other users
+        if (socketRef.current) {
+            socketRef.current.emit(ACTIONS.INPUT_CHANGE, {
+                roomId,
+                input: newInput,
             });
         }
     }, [roomId]);
@@ -136,7 +165,7 @@ const EditorPage = () => {
 
         try {
             const pistonLanguage = getPistonLanguage(selectedLanguage);
-            const result = await executeCode(code, pistonLanguage);
+            const result = await executeCode(code, pistonLanguage, input);
 
             setOutput(result.output);
             setIsError(result.isError);
@@ -164,7 +193,7 @@ const EditorPage = () => {
             setIsRunning(false);
             isRunningRef.current = false;
         }
-    }, [selectedLanguage, roomId]);
+    }, [selectedLanguage, roomId, input]);
 
     async function copyRoomId() {
         try {
@@ -265,6 +294,8 @@ const EditorPage = () => {
                         socketRef={socketRef}
                         roomId={roomId}
                         language={selectedLanguage}
+                        clients={clients}
+                        currentUsername={currentUsername}
                         onCodeChange={(code) => {
                             codeRef.current = code;
                         }}
@@ -275,6 +306,8 @@ const EditorPage = () => {
                     output={output}
                     isError={isError}
                     isRunning={isRunning}
+                    input={input}
+                    onInputChange={handleInputChange}
                 />
             </div>
         </div>

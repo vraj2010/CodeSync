@@ -583,6 +583,117 @@ body {
 }
 
 /* =====================================================
+   Remote Cursors (Collaborative)
+===================================================== */
+.remote-cursor {
+    position: relative;
+    display: inline-block;
+}
+
+.remote-cursor-label {
+    animation: cursorFadeIn 0.2s ease-out;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes cursorFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =====================================================
+   Output Panel Tabs
+===================================================== */
+.outputTabs {
+    display: flex;
+    gap: 4px;
+}
+
+.outputTab {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.outputTab:hover {
+    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.outputTab.active {
+    color: #4aed88;
+    background: rgba(74, 237, 136, 0.1);
+}
+
+/* =====================================================
+   Input Panel (stdin)
+===================================================== */
+.inputContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    gap: 10px;
+}
+
+.stdinInput {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #2a2d3a;
+    color: #e5e7eb;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: none;
+    min-height: 80px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stdinInput::placeholder {
+    color: #6b7280;
+    font-style: italic;
+}
+
+.stdinInput:focus {
+    outline: none;
+    border-color: #4aed88;
+    box-shadow: 0 0 0 2px rgba(74, 237, 136, 0.1);
+}
+
+.stdinInput:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.inputHelp {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.inputHelpIcon {
+    font-size: 14px;
+}
+
+/* =====================================================
    Responsive
 ===================================================== */
 @media (max-width: 768px) {
@@ -626,5 +737,9 @@ body {
     .outputPanel {
         max-height: 200px;
         min-height: 100px;
+    }
+
+    .stdinInput {
+        min-height: 60px;
     }
 }
