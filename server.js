@@ -97,36 +97,6 @@ function getRoomState(roomId) {
     return roomState[roomId];
 }
 
-// Track users in voice chat per room
-const voiceUsersMap = {}; // { roomId: [{ socketId, username }] }
-
-function getVoiceUsers(roomId) {
-    if (!voiceUsersMap[roomId]) {
-        voiceUsersMap[roomId] = [];
-    }
-    return voiceUsersMap[roomId];
-}
-
-function addVoiceUser(roomId, socketId, username) {
-    const voiceUsers = getVoiceUsers(roomId);
-    // Remove if already exists (reconnection case)
-    const existingIndex = voiceUsers.findIndex(u => u.socketId === socketId);
-    if (existingIndex !== -1) {
-        voiceUsers.splice(existingIndex, 1);
-    }
-    voiceUsers.push({ socketId, username, isMuted: false });
-    return voiceUsers;
-}
-
-function removeVoiceUser(roomId, socketId) {
-    const voiceUsers = getVoiceUsers(roomId);
-    const index = voiceUsers.findIndex(u => u.socketId === socketId);
-    if (index !== -1) {
-        voiceUsers.splice(index, 1);
-    }
-    return voiceUsers;
-}
-
 io.on('connection', (socket) => {
     console.log('🔌 Socket connected:', socket.id);
 
@@ -215,86 +185,18 @@ io.on('connection', (socket) => {
         io.to(socketId).emit(ACTIONS.INPUT_CHANGE, { input });
     });
 
-    // ==================== VOICE CHAT (WebRTC Signaling) ====================
-
-    // User joins voice chat
-    socket.on(ACTIONS.VOICE_JOIN, ({ roomId, username }) => {
-        console.log(`🎤 ${username} joined voice chat in room ${roomId}`);
-
-        const voiceUsers = addVoiceUser(roomId, socket.id, username);
-
-        // Notify all users in the room about the new voice user
-        io.in(roomId).emit(ACTIONS.VOICE_USER_JOINED, {
-            socketId: socket.id,
-            username,
-            voiceUsers
-        });
-    });
-
-    // WebRTC signaling - forward signal to target peer
-    socket.on(ACTIONS.VOICE_SIGNAL, ({ roomId, targetSocketId, signal, fromSocketId }) => {
-        io.to(targetSocketId).emit(ACTIONS.VOICE_SIGNAL, {
-            signal,
-            fromSocketId
-        });
-    });
-
-    // User leaves voice chat
-    socket.on(ACTIONS.VOICE_USER_LEFT, ({ roomId, username }) => {
-        console.log(`🎤 ${username} left voice chat in room ${roomId}`);
-
-        const voiceUsers = removeVoiceUser(roomId, socket.id);
-
-        // Notify all users in the room
-        io.in(roomId).emit(ACTIONS.VOICE_USER_LEFT, {
-            socketId: socket.id,
-            username,
-            voiceUsers
-        });
-    });
-
-    // User mutes/unmutes
-    socket.on(ACTIONS.VOICE_MUTE, ({ roomId, isMuted, username }) => {
-        const voiceUsers = getVoiceUsers(roomId);
-        const user = voiceUsers.find(u => u.socketId === socket.id);
-        if (user) {
-            user.isMuted = isMuted;
-        }
-
-        // Broadcast mute status to room
-        socket.in(roomId).emit(ACTIONS.VOICE_MUTE, {
-            socketId: socket.id,
-            isMuted,
-            username
-        });
-    });
-
-    // ==================== DISCONNECTION ====================
-
     socket.on('disconnecting', () => {
         const rooms = [...socket.rooms];
         rooms.forEach((roomId) => {
-            // Notify about disconnection
             socket.in(roomId).emit(ACTIONS.DISCONNECTED, {
                 socketId: socket.id,
                 username: userSocketMap[socket.id],
             });
 
-            // Remove from voice chat if in one
-            const voiceUsers = removeVoiceUser(roomId, socket.id);
-            if (voiceUsers.length > 0 || voiceUsersMap[roomId]) {
-                socket.in(roomId).emit(ACTIONS.VOICE_USER_LEFT, {
-                    socketId: socket.id,
-                    username: userSocketMap[socket.id],
-                    voiceUsers
-                });
-            }
-
             // Clean up empty rooms
             const clients = getAllConnectedClients(roomId);
             if (clients.length <= 1) {
                 delete roomState[roomId];
-                delete voiceUsersMap[roomId];
             }
         });
         delete userSocketMap[socket.id];

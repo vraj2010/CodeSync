@@ -4,7 +4,6 @@ import ACTIONS from '../Actions';
 import Client from '../components/Client';
 import Editor from '../components/Editor';
 import OutputPanel from '../components/OutputPanel';
-import VoiceChat from '../components/VoiceChat';
 import { initSocket } from '../socket';
 import { executeCode } from '../api/codeApi';
 import { SUPPORTED_LANGUAGES, getPistonLanguage } from '../utils/languageMapping';
@@ -256,14 +255,6 @@ const EditorPage = () => {
                             />
                         ))}
                     </div>
-
-                    {/* Voice Chat */}
-                    <VoiceChat
-                        socketRef={socketRef}
-                        roomId={roomId}
-                        clients={clients}
-                        currentUsername={currentUsername}
-                    />
                 </div>
 
                 <button className="btn copyBtn" onClick={copyRoomId}>
