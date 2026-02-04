@@ -319,6 +319,7 @@ textarea {
     display: grid;
     grid-template-columns: 260px 1fr;
     height: 100vh;
+    position: relative;
 }
 
 .aside {
@@ -327,6 +328,86 @@ textarea {
     padding: 18px;
     background: linear-gradient(180deg, #1c1e29, #171824);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* =====================================================
+   Mobile Sidebar Controls
+===================================================== */
+.mobileMenuBtn {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1000;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(28, 30, 41, 0.95);
+    backdrop-filter: blur(10px);
+    color: #e5e7eb;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mobileMenuBtn svg {
+    width: 22px;
+    height: 22px;
+}
+
+.mobileUserCount {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #4aed88;
+    color: #1c1e29;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebarOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1001;
+    backdrop-filter: blur(4px);
+}
+
+.mobileCloseBtn {
+    display: none;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #e5e7eb;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.mobileCloseBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.mobileCloseBtn svg {
+    width: 20px;
+    height: 20px;
 }
 
 .asideInner {
@@ -921,59 +1002,336 @@ textarea {
 }
 
 /* =====================================================
-   Responsive
+   Responsive - Tablet (1024px and below)
 ===================================================== */
-@media (max-width: 768px) {
-    .navRight {
-        display: none;
+@media (max-width: 1024px) {
+    .languageMenu {
+        min-width: 320px;
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .mainWrap {
-        grid-template-columns: 1fr;
+        grid-template-columns: 220px 1fr;
     }
 
     .aside {
+        padding: 14px;
+    }
+
+    .aside .logoText {
+        font-size: 20px;
+    }
+
+    .navLogo {
+        height: 36px;
+    }
+}
+
+/* =====================================================
+   Responsive - Mobile (768px and below)
+===================================================== */
+@media (max-width: 768px) {
+
+    /* Header */
+    .mainHeader {
+        height: 60px;
+    }
+
+    .navContent {
+        padding: 0 16px;
+    }
+
+    .navLogo {
+        height: 32px;
+    }
+
+    .logoText {
+        font-size: 20px;
+    }
+
+    .navRight {
+        gap: 12px;
+    }
+
+    .navLink {
         display: none;
     }
 
+    .navBtn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    /* Home Page */
+    .homePageWrapper {
+        padding-top: 60px;
+        padding: 70px 16px 20px;
+    }
+
+    .formWrapper {
+        padding: 28px 24px;
+        border-radius: 16px;
+    }
+
+    .mainLabel {
+        font-size: 12px;
+        margin-bottom: 16px;
+    }
+
+    .inputBox {
+        padding: 14px;
+        font-size: 14px;
+    }
+
+    .joinBtn {
+        width: 100%;
+    }
+
+    /* Footer */
     .footerContent {
         flex-direction: column;
         gap: 10px;
         text-align: center;
+        padding: 0 16px;
     }
 
+    .footerLinks {
+        margin-top: 4px;
+    }
+
+    /* Mobile Menu Button - Show on mobile */
+    .mobileMenuBtn {
+        display: flex;
+    }
+
+    /* Mobile Overlay - Show when sidebar is open */
+    .sidebarOverlay {
+        display: block;
+    }
+
+    /* Mobile Close Button */
+    .mobileCloseBtn {
+        display: flex;
+    }
+
+    /* Editor Layout */
+    .mainWrap {
+        grid-template-columns: 1fr;
+    }
+
+    /* Sidebar - Slide-in panel on mobile */
+    .aside {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        max-width: 85vw;
+        z-index: 1002;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        padding-top: 60px;
+    }
+
+    .aside.open {
+        transform: translateX(0);
+    }
+
+    /* Editor Header - Single row layout on mobile */
     .editorHeader {
-        flex-direction: column;
-        gap: 12px;
-        padding: 10px 15px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 12px 10px 60px;
+        /* Left padding for menu button */
+        align-items: center;
     }
 
-    .languageSelector {
-        width: 100%;
+    .editorTitle {
+        flex-shrink: 0;
     }
 
-    .languageSelect {
+    .headerControls {
         flex: 1;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        justify-content: flex-end;
     }
 
-    .runBtn {
+    /* Language Dropdown */
+    .languageDropdown {
+        flex: 1;
+        max-width: 200px;
+    }
+
+    .languageBtn {
         width: 100%;
-        justify-content: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        font-size: 13px;
     }
 
-    /* Stack split panels vertically on mobile */
+    /* Language Menu - 2 columns on mobile, positioned properly */
+    .languageMenu {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        min-width: 100%;
+        max-height: 60vh;
+        overflow-y: auto;
+        border-radius: 20px 20px 0 0;
+        border: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+        grid-template-columns: repeat(2, 1fr);
+        gap: 4px;
+        padding: 16px;
+        z-index: 9999;
+    }
+
+    .languageOption {
+        padding: 14px 12px;
+        font-size: 14px;
+        border-radius: 10px;
+    }
+
+    /* Run Button - Compact on mobile, stays in row */
+    .runBtn {
+        flex-shrink: 0;
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
+    /* Code Editor */
+    .CodeMirror {
+        font-size: 14px !important;
+        padding: 12px;
+    }
+
+    /* Split Panel Container - Stack vertically */
     .splitPanelContainer {
         flex-direction: column;
         height: auto;
+        min-height: 280px;
     }
 
     .splitPane {
-        min-height: 120px;
+        min-height: 140px;
     }
 
     .splitDivider {
         width: 100%;
         height: 1px;
+    }
+
+    .paneHeader {
+        padding: 8px 12px;
+    }
+
+    .paneTitle {
+        font-size: 12px;
+    }
+
+    .paneContent {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+}
+
+/* =====================================================
+   Responsive - Small Mobile (480px and below)
+===================================================== */
+@media (max-width: 480px) {
+    .navContent {
+        padding: 0 12px;
+    }
+
+    .navLogo {
+        height: 28px;
+    }
+
+    .logoText {
+        font-size: 18px;
+    }
+
+    .navBtn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+
+    .homePageWrapper {
+        padding: 65px 12px 16px;
+    }
+
+    .formWrapper {
+        padding: 24px 20px;
+    }
+
+    .inputBox {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .createInfo {
+        font-size: 13px;
+    }
+
+    /* Language Menu - Single column on very small screens */
+    .languageMenu {
+        grid-template-columns: 1fr;
+        max-height: 70vh;
+        padding: 12px;
+    }
+
+    .languageOption {
+        padding: 16px 14px;
+        font-size: 15px;
+    }
+
+    .editorHeader {
+        padding: 8px 10px;
+    }
+
+    .CodeMirror {
+        font-size: 13px !important;
+        padding: 8px;
+    }
+
+    .paneContent {
+        font-size: 13px;
+        padding: 8px 10px;
+    }
+
+    /* Improve touch targets */
+    .btn {
+        min-height: 44px;
+    }
+
+    .languageBtn {
+        min-height: 44px;
+    }
+
+    .languageOption {
+        min-height: 44px;
+    }
+}
+
+/* =====================================================
+   Mobile Overlay for Language Menu
+===================================================== */
+@media (max-width: 768px) {
+    .languageMenu.show::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: -1;
     }
 }
 

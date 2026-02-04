@@ -22,6 +22,9 @@ const EditorPage = () => {
     const reactNavigator = useNavigate();
     const [clients, setClients] = useState([]);
 
+    // Mobile sidebar state
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     // Code execution state
     const [selectedLanguage, setSelectedLanguage] = useState('javascript');
     const [output, setOutput] = useState('');
@@ -228,7 +231,37 @@ const EditorPage = () => {
 
     return (
         <div className="mainWrap">
-            <div className="aside">
+            {/* Mobile Menu Button */}
+            <button
+                className="mobileMenuBtn"
+                onClick={() => setIsSidebarOpen(true)}
+                aria-label="Open menu"
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <span className="mobileUserCount">{clients.length}</span>
+            </button>
+
+            {/* Mobile Overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="sidebarOverlay"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
+            <div className={`aside ${isSidebarOpen ? 'open' : ''}`}>
+                {/* Mobile Close Button */}
+                <button
+                    className="mobileCloseBtn"
+                    onClick={() => setIsSidebarOpen(false)}
+                    aria-label="Close menu"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
                 <div className="asideInner">
                     <div className="logo">
                         <div className="logo">
