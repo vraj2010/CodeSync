@@ -25,6 +25,75 @@ const EditorPage = () => {
     // Mobile sidebar state
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    // Touch swipe gesture for mobile sidebar
+    const touchStartX = useRef(null);
+    const touchStartY = useRef(null);
+    const SWIPE_THRESHOLD = 50; // Minimum swipe distance
+    const EDGE_ZONE = 30; // Pixels from left edge to trigger swipe
+
+    useEffect(() => {
+        const handleTouchStart = (e) => {
+            const touch = e.touches[0];
+            touchStartX.current = touch.clientX;
+            touchStartY.current = touch.clientY;
+        };
+
+        const handleTouchEnd = (e) => {
+            if (touchStartX.current === null) return;
+
+            const touch = e.changedTouches[0];
+            const deltaX = touch.clientX - touchStartX.current;
+            const deltaY = touch.clientY - touchStartY.current;
+
+            // Check if horizontal swipe is dominant (not scrolling)
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                // Swipe right from left edge to open sidebar
+                if (deltaX > SWIPE_THRESHOLD && touchStartX.current < EDGE_ZONE && !isSidebarOpen) {
+                    setIsSidebarOpen(true);
+                }
+                // Swipe left to close sidebar
+                else if (deltaX < -SWIPE_THRESHOLD && isSidebarOpen) {
+                    setIsSidebarOpen(false);
+                }
+            }
+
+            touchStartX.current = null;
+            touchStartY.current = null;
+        };
+
+        // Only add swipe listeners on small screens
+        const mediaQuery = window.matchMedia('(max-width: 482px)');
+
+        const addSwipeListeners = () => {
+            if (mediaQuery.matches) {
+                document.addEventListener('touchstart', handleTouchStart, { passive: true });
+                document.addEventListener('touchend', handleTouchEnd, { passive: true });
+            }
+        };
+
+        const removeSwipeListeners = () => {
+            document.removeEventListener('touchstart', handleTouchStart);
+            document.removeEventListener('touchend', handleTouchEnd);
+        };
+
+        const handleMediaChange = (e) => {
+            if (e.matches) {
+                addSwipeListeners();
+            } else {
+                removeSwipeListeners();
+            }
+        };
+
+        // Initial setup
+        addSwipeListeners();
+        mediaQuery.addEventListener('change', handleMediaChange);
+
+        return () => {
+            removeSwipeListeners();
+            mediaQuery.removeEventListener('change', handleMediaChange);
+        };
+    }, [isSidebarOpen]);
+
     // Code execution state
     const [selectedLanguage, setSelectedLanguage] = useState('javascript');
     const [output, setOutput] = useState('');

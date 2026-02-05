@@ -389,7 +389,8 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 5px 14px;
+    padding: 14px 14px 8px;
+    min-height: 60px;
 }
 
 .sidebarHeader .navLeft {
@@ -399,11 +400,12 @@ textarea {
 }
 
 .sidebarHeader .navLogo {
-    height: 40px;
+    height: 48px;
+    width: auto;
 }
 
 .sidebarHeader .logoText {
-    font-size: 20px;
+    font-size: 26px;
 }
 
 .mobileCloseBtn {
@@ -448,8 +450,8 @@ textarea {
    Sidebar Section Heading (SINGLE divider)
 ===================================================== */
 .asideInner h3 {
-    margin: 12px 0 14px;
-    padding-top: 16px;
+    margin: 6px 0 12px;
+    padding-top: 10px;
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.12em;
@@ -1271,8 +1273,9 @@ textarea {
 
 /* =====================================================
    Responsive - Very Small Mobile (482px and below)
-   - Hide menu toggle button (mobile users access sidebar directly)
+   - Hide menu toggle button (mobile users use swipe gesture)
    - Keep menu button visible for tablets (482px - 768px)
+   - Swipe right from left edge to open sidebar
 ===================================================== */
 @media (max-width: 482px) {
 
@@ -1281,14 +1284,34 @@ textarea {
         display: none !important;
     }
 
-    /* Also hide the overlay trigger since menu button is hidden */
+    /* Overlay still works when sidebar is opened via swipe */
     .sidebarOverlay {
-        display: none;
+        display: block;
     }
 
     /* Adjust editor header padding since menu button is hidden */
     .editorHeader {
         padding-left: 12px;
+    }
+
+    /* Add visual hint for swipe area */
+    .mainWrap::before {
+        content: '';
+        position: fixed;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 60px;
+        background: rgba(74, 237, 136, 0.3);
+        border-radius: 0 4px 4px 0;
+        z-index: 999;
+        opacity: 0.6;
+        transition: opacity 0.3s ease;
+    }
+
+    .mainWrap:active::before {
+        opacity: 0;
     }
 }
 
