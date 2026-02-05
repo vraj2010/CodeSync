@@ -336,21 +336,21 @@ textarea {
 .mobileMenuBtn {
     display: none;
     position: fixed;
-    top: 12px;
-    left: 12px;
+    top: 8px;
+    left: 8px;
     z-index: 1000;
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     border: none;
-    border-radius: 12px;
-    background: rgba(28, 30, 41, 0.95);
+    border-radius: 10px;
+    background: rgba(28, 30, 41, 0.98);
     backdrop-filter: blur(10px);
     color: #e5e7eb;
     cursor: pointer;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mobileMenuBtn svg {
@@ -384,11 +384,30 @@ textarea {
     backdrop-filter: blur(4px);
 }
 
+/* Sidebar Header - Logo and Close button in one row */
+.sidebarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 14px;
+}
+
+.sidebarHeader .navLeft {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sidebarHeader .navLogo {
+    height: 40px;
+}
+
+.sidebarHeader .logoText {
+    font-size: 20px;
+}
+
 .mobileCloseBtn {
     display: none;
-    position: absolute;
-    top: 12px;
-    right: 12px;
     width: 36px;
     height: 36px;
     border: none;
@@ -399,6 +418,7 @@ textarea {
     align-items: center;
     justify-content: center;
     transition: background 0.2s ease;
+    flex-shrink: 0;
 }
 
 .mobileCloseBtn:hover {
@@ -412,6 +432,7 @@ textarea {
 
 .asideInner {
     flex: 1;
+    overflow-y: auto;
 }
 
 .logo {
@@ -1130,7 +1151,8 @@ textarea {
         z-index: 1002;
         transform: translateX(-100%);
         transition: transform 0.3s ease;
-        padding-top: 60px;
+        padding-top: 0;
+        /* sidebarHeader handles spacing now */
     }
 
     .aside.open {
@@ -1148,14 +1170,20 @@ textarea {
     }
 
     .editorTitle {
-        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        margin-right: auto;
+        /* Push controls to the right */
+        font-size: 14px;
     }
 
     .headerControls {
-        flex: 1;
+        flex: 0 1 auto;
+        /* Don't force full width, allow shrinking if needed */
         display: flex;
         flex-direction: row;
-        gap: 10px;
+        gap: 8px;
+        /* Slightly tighter gap on mobile */
         justify-content: flex-end;
     }
 
@@ -1238,6 +1266,29 @@ textarea {
     .paneContent {
         padding: 10px 12px;
         font-size: 14px;
+    }
+}
+
+/* =====================================================
+   Responsive - Very Small Mobile (482px and below)
+   - Hide menu toggle button (mobile users access sidebar directly)
+   - Keep menu button visible for tablets (482px - 768px)
+===================================================== */
+@media (max-width: 482px) {
+
+    /* Hide the menu toggle button on very small screens */
+    .mobileMenuBtn {
+        display: none !important;
+    }
+
+    /* Also hide the overlay trigger since menu button is hidden */
+    .sidebarOverlay {
+        display: none;
+    }
+
+    /* Adjust editor header padding since menu button is hidden */
+    .editorHeader {
+        padding-left: 12px;
     }
 }
 

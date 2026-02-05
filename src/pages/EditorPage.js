@@ -252,32 +252,29 @@ const EditorPage = () => {
             )}
 
             <div className={`aside ${isSidebarOpen ? 'open' : ''}`}>
-                {/* Mobile Close Button */}
-                <button
-                    className="mobileCloseBtn"
-                    onClick={() => setIsSidebarOpen(false)}
-                    aria-label="Close menu"
-                >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                </button>
-                <div className="asideInner">
-                    <div className="logo">
-                        <div className="logo">
-                            <div className="navLeft">
-                                <img
-                                    className="navLogo"
-                                    src="/code-sync.png"
-                                    alt="CodeSync Logo"
-                                />
-                                <h1 className="logoText">
-                                    Code<span>Sync</span>
-                                </h1>
-                            </div>
-                        </div>
+                {/* Sidebar Header - Logo and Close Button in one row */}
+                <div className="sidebarHeader">
+                    <div className="navLeft">
+                        <img
+                            className="navLogo"
+                            src="/code-sync.png"
+                            alt="CodeSync Logo"
+                        />
+                        <h1 className="logoText">
+                            Code<span>Sync</span>
+                        </h1>
                     </div>
-
+                    <button
+                        className="mobileCloseBtn"
+                        onClick={() => setIsSidebarOpen(false)}
+                        aria-label="Close menu"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div className="asideInner">
                     <h3>Connected Users</h3>
 
                     <div className="clientsList">
