@@ -87,6 +87,33 @@ const clerkAppearance = {
         identityPreview: {
             backgroundColor: 'rgba(255, 255, 255, 0.05)',
         },
+        // User Button Popover
+        userButtonPopoverCard: {
+            backgroundColor: 'rgba(40, 42, 54, 0.95)',
+            backdropFilter: 'blur(15px)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: '0 30px 60px rgba(0, 0, 0, 0.5)',
+        },
+        userButtonPopoverMain: {
+            backgroundColor: 'transparent',
+            color: '#ffffff',
+        },
+        userButtonPopoverActionButton: {
+            color: '#e5e7eb',
+        },
+        userButtonPopoverActionButtonIcon: {
+            color: '#94a3b8',
+        },
+        userButtonPopoverFooter: {
+            background: 'rgba(0,0,0,0.2)',
+        },
+        userPreviewMainIdentifier: {
+            color: '#ffffff !important',
+            fontWeight: '600',
+        },
+        userPreviewSecondaryIdentifier: {
+            color: '#94a3b8 !important',
+        },
     },
     layout: {
         socialButtonsPlacement: 'top',

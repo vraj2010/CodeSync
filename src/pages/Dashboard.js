@@ -86,7 +86,7 @@ const Dashboard = () => {
                 <section className="welcomeSection">
                     <div className="welcomeContent">
                         <h1 className="welcomeTitle">
-                            Welcome back, <span className="userName">{user?.firstName || 'Developer'}</span>! 👋
+                            Welcome back, <span className="userName">{user?.firstName || 'Developer'}</span>!
                         </h1>
                         <p className="welcomeSubtitle">
                             Ready to collaborate? Create a new workspace or join an existing one.
@@ -157,32 +157,7 @@ const Dashboard = () => {
                 </section>
 
                 {/* Quick tips */}
-                <section className="tipsSection">
-                    <h3>✨ Quick Tips</h3>
-                    <div className="tipCards">
-                        <div className="tipCard">
-                            <span className="tipIcon">🔒</span>
-                            <div>
-                                <strong>Private Rooms</strong>
-                                <p>As an admin, you can make your room private and approve join requests.</p>
-                            </div>
-                        </div>
-                        <div className="tipCard">
-                            <span className="tipIcon">📝</span>
-                            <div>
-                                <strong>Read-Only Mode</strong>
-                                <p>Enable read-only mode to prevent collaborators from editing the code.</p>
-                            </div>
-                        </div>
-                        <div className="tipCard">
-                            <span className="tipIcon">🎤</span>
-                            <div>
-                                <strong>Voice Chat</strong>
-                                <p>Use the built-in voice chat to communicate with your team in real-time.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+
             </main>
 
             {/* Footer */}

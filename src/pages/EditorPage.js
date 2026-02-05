@@ -566,27 +566,37 @@ const EditorPage = () => {
                     </VoiceRoomProvider>
                 )}
 
-                {/* User Profile Button */}
-                <div className="sidebarUserProfile">
-                    <UserButton
-                        afterSignOutUrl="/"
-                        appearance={{
-                            elements: {
-                                avatarBox: 'sidebarAvatar',
-                                userButtonTrigger: 'sidebarUserBtn'
-                            }
-                        }}
-                    />
-                    <span className="sidebarUsername">{currentUsername}</span>
+                {/* Sidebar Footer */}
+                <div className="sidebarFooter">
+                    <div className="sidebarUserProfile">
+                        <UserButton
+                            afterSignOutUrl="/"
+                            appearance={{
+                                elements: {
+                                    avatarBox: 'sidebarAvatar',
+                                    userButtonTrigger: 'sidebarUserBtn'
+                                }
+                            }}
+                        />
+                        <div className="userInfo">
+                            <span className="sidebarUsername">{currentUsername}</span>
+                            <span className="userRole">{isAdmin ? 'Admin' : 'Collaborator'}</span>
+                        </div>
+                    </div>
+
+                    <div className="sidebarActions">
+                        <button className="actionBtn" onClick={copyRoomId} title="Copy Room ID">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                        </button>
+                        <button className="actionBtn danger" onClick={leaveRoom} title="Leave Workspace">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-
-                <button className="btn copyBtn" onClick={copyRoomId}>
-                    Copy Room ID
-                </button>
-
-                <button className="btn leaveBtn" onClick={leaveRoom}>
-                    Leave Workspace
-                </button>
             </div>
 
             <div className="editorContainer">

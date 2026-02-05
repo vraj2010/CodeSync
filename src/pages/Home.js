@@ -84,6 +84,11 @@ const Home = () => {
             </header>
 
             <main className="homePageWrapper">
+                <div className="homeBackground">
+                    <div className="grid-overlay"></div>
+                    <div className="orb-1"></div>
+                    <div className="orb-2"></div>
+                </div>
                 <div className="homeContent">
                     {/* Hero Section */}
                     <div className="heroSection">
