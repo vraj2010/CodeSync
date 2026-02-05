@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { useUser, UserButton } from '@clerk/clerk-react';
 import ACTIONS from '../Actions';
 import Client from '../components/Client';
 import Editor from '../components/Editor';
 import OutputPanel from '../components/OutputPanel';
 import VoiceControls from '../components/VoiceControls';
+import WaitingRoom from '../components/WaitingRoom';
 import { VoiceRoomProvider } from '../context/VoiceRoomContext';
 import { initSocket } from '../socket';
 import { executeCode } from '../api/codeApi';
@@ -23,6 +25,9 @@ const EditorPage = () => {
     const { roomId } = useParams();
     const reactNavigator = useNavigate();
     const [clients, setClients] = useState([]);
+
+    // Get Clerk user info
+    const { user, isLoaded: isUserLoaded } = useUser();
 
     // Mobile sidebar state
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -111,12 +116,13 @@ const EditorPage = () => {
     const [roomStatus, setRoomStatus] = useState('public');
     const [isReadOnly, setIsReadOnly] = useState(false);
     const [joinRequestPending, setJoinRequestPending] = useState(false);
+    const [pendingRequests, setPendingRequests] = useState([]);
 
     // Socket connection state for voice chat
     const [isSocketConnected, setIsSocketConnected] = useState(false);
 
-    // Get current username
-    const currentUsername = location.state?.username;
+    // Get current username - prioritize Clerk user, fall back to location state
+    const currentUsername = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || location.state?.username || 'Anonymous';
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -132,6 +138,9 @@ const EditorPage = () => {
     }, []);
 
     useEffect(() => {
+        // Wait for Clerk user to load
+        if (!isUserLoaded) return;
+
         const init = async () => {
             socketRef.current = await initSocket();
             socketRef.current.on('connect_error', (err) => handleErrors(err));
@@ -140,7 +149,7 @@ const EditorPage = () => {
             function handleErrors(e) {
                 console.log('socket error', e);
                 toast.error('Unable to connect to the server. Please try again.');
-                reactNavigator('/');
+                reactNavigator('/dashboard');
             }
 
             socketRef.current.emit(ACTIONS.JOIN, {
@@ -187,6 +196,8 @@ const EditorPage = () => {
                             (client) => client.socketId !== socketId
                         );
                     });
+                    // Remove from pending requests if they were waiting
+                    setPendingRequests((prev) => prev.filter(r => r.socketId !== socketId));
                 }
             );
 
@@ -221,7 +232,7 @@ const EditorPage = () => {
 
             socketRef.current.on(ACTIONS.JOIN_DENIED, ({ reason }) => {
                 toast.error(reason);
-                reactNavigator('/');
+                reactNavigator('/dashboard');
             });
 
             socketRef.current.on(ACTIONS.JOIN_APPROVED, () => {
@@ -231,16 +242,26 @@ const EditorPage = () => {
                 socketRef.current.emit(ACTIONS.JOIN, { roomId, username: currentUsername });
             });
 
+            // Admin: Listen for join requests
             socketRef.current.on(ACTIONS.REQUEST_JOIN, ({ username, socketId }) => {
+                // Add to pending requests list
+                setPendingRequests((prev) => {
+                    if (prev.find(r => r.socketId === socketId)) return prev;
+                    return [...prev, { username, socketId }];
+                });
+
+                // Also show a toast notification
                 toast((t) => (
                     <div className="joinRequestToast">
-                        <p>{username} wants to join</p>
+                        <p><strong>{username}</strong> wants to join</p>
                         <div className="toastActions">
                             <button
                                 className="approveBtn"
                                 onClick={() => {
                                     socketRef.current.emit(ACTIONS.JOIN_APPROVED, { socketId, roomId });
+                                    setPendingRequests((prev) => prev.filter(r => r.socketId !== socketId));
                                     toast.dismiss(t.id);
+                                    toast.success(`${username} has been approved!`);
                                 }}>
                                 Approve
                             </button>
@@ -248,6 +269,7 @@ const EditorPage = () => {
                                 className="denyBtn"
                                 onClick={() => {
                                     socketRef.current.emit(ACTIONS.JOIN_DENIED, { socketId, roomId });
+                                    setPendingRequests((prev) => prev.filter(r => r.socketId !== socketId));
                                     toast.dismiss(t.id);
                                 }}>
                                 Deny
@@ -259,14 +281,21 @@ const EditorPage = () => {
         };
         init();
         return () => {
-            socketRef.current.disconnect();
-            socketRef.current.off(ACTIONS.JOINED);
-            socketRef.current.off(ACTIONS.DISCONNECTED);
-            socketRef.current.off(ACTIONS.LANGUAGE_CHANGE);
-            socketRef.current.off(ACTIONS.CODE_OUTPUT);
-            socketRef.current.off(ACTIONS.INPUT_CHANGE);
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+                socketRef.current.off(ACTIONS.JOINED);
+                socketRef.current.off(ACTIONS.DISCONNECTED);
+                socketRef.current.off(ACTIONS.LANGUAGE_CHANGE);
+                socketRef.current.off(ACTIONS.CODE_OUTPUT);
+                socketRef.current.off(ACTIONS.INPUT_CHANGE);
+                socketRef.current.off(ACTIONS.ADMIN_UPDATE);
+                socketRef.current.off(ACTIONS.JOIN_REQUEST);
+                socketRef.current.off(ACTIONS.JOIN_DENIED);
+                socketRef.current.off(ACTIONS.JOIN_APPROVED);
+                socketRef.current.off(ACTIONS.REQUEST_JOIN);
+            }
         };
-    }, []);
+    }, [isUserLoaded, currentUsername, roomId, reactNavigator]);
 
     // Handle language change
     const handleLanguageChange = useCallback((e) => {
@@ -343,6 +372,23 @@ const EditorPage = () => {
         }
     }, [selectedLanguage, roomId, input]);
 
+    // Handle approve request
+    const handleApproveRequest = useCallback((socketId, username) => {
+        if (socketRef.current) {
+            socketRef.current.emit(ACTIONS.JOIN_APPROVED, { socketId, roomId });
+            setPendingRequests((prev) => prev.filter(r => r.socketId !== socketId));
+            toast.success(`${username} has been approved!`);
+        }
+    }, [roomId]);
+
+    // Handle deny request
+    const handleDenyRequest = useCallback((socketId) => {
+        if (socketRef.current) {
+            socketRef.current.emit(ACTIONS.JOIN_DENIED, { socketId, roomId });
+            setPendingRequests((prev) => prev.filter(r => r.socketId !== socketId));
+        }
+    }, [roomId]);
+
     async function copyRoomId() {
         try {
             await navigator.clipboard.writeText(roomId);
@@ -354,23 +400,36 @@ const EditorPage = () => {
     }
 
     function leaveRoom() {
-        reactNavigator('/');
+        reactNavigator('/dashboard');
     }
 
-    if (!location.state) {
-        return <Navigate to="/" />;
-    }
-
-    if (joinRequestPending) {
+    // Show loading while Clerk user loads
+    if (!isUserLoaded) {
         return (
-            <div className="joinRequestWrapper">
-                <div className="joinRequestCard">
-                    <h3>Waiting for Approval</h3>
-                    <p>This room is private. A request has been sent to the admin.</p>
-                    <div className="spinner large"></div>
-                    <button className="btn leaveBtn" onClick={leaveRoom}>Cancel</button>
+            <div className="authLoadingWrapper">
+                <div className="authLoadingCard">
+                    <div className="authLoadingLogo">
+                        <img src="/code-sync.png" alt="CodeSync" />
+                        <h1 className="logoText">Code<span>Sync</span></h1>
+                    </div>
+                    <div className="authLoadingSpinner">
+                        <div className="spinner large"></div>
+                        <p>Loading workspace...</p>
+                    </div>
                 </div>
             </div>
+        );
+    }
+
+    // Show waiting room for private room requests
+    if (joinRequestPending) {
+        return (
+            <WaitingRoom
+                socket={socketRef.current}
+                roomId={roomId}
+                onApproved={() => setJoinRequestPending(false)}
+                onDenied={() => reactNavigator('/dashboard')}
+            />
         );
     }
 
@@ -445,6 +504,7 @@ const EditorPage = () => {
                                             socketRef.current.emit(ACTIONS.ADMIN_UPDATE, { roomId, status: newStatus });
                                         }}
                                     />
+                                    <span className="checkboxCustom"></span>
                                     Private Room
                                 </label>
                             </div>
@@ -457,9 +517,40 @@ const EditorPage = () => {
                                             socketRef.current.emit(ACTIONS.ADMIN_UPDATE, { roomId, readOnly: e.target.checked });
                                         }}
                                     />
+                                    <span className="checkboxCustom"></span>
                                     Read-Only Mode
                                 </label>
                             </div>
+
+                            {/* Pending Requests Section */}
+                            {pendingRequests.length > 0 && (
+                                <div className="pendingRequests">
+                                    <h4>Pending Requests ({pendingRequests.length})</h4>
+                                    <div className="requestsList">
+                                        {pendingRequests.map((request) => (
+                                            <div key={request.socketId} className="requestItem">
+                                                <span className="requestName">{request.username}</span>
+                                                <div className="requestActions">
+                                                    <button
+                                                        className="approveBtn small"
+                                                        onClick={() => handleApproveRequest(request.socketId, request.username)}
+                                                        title="Approve"
+                                                    >
+                                                        ✓
+                                                    </button>
+                                                    <button
+                                                        className="denyBtn small"
+                                                        onClick={() => handleDenyRequest(request.socketId)}
+                                                        title="Deny"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -474,6 +565,20 @@ const EditorPage = () => {
                         <VoiceControls />
                     </VoiceRoomProvider>
                 )}
+
+                {/* User Profile Button */}
+                <div className="sidebarUserProfile">
+                    <UserButton
+                        afterSignOutUrl="/"
+                        appearance={{
+                            elements: {
+                                avatarBox: 'sidebarAvatar',
+                                userButtonTrigger: 'sidebarUserBtn'
+                            }
+                        }}
+                    />
+                    <span className="sidebarUsername">{currentUsername}</span>
+                </div>
 
                 <button className="btn copyBtn" onClick={copyRoomId}>
                     Copy Room ID
@@ -491,6 +596,33 @@ const EditorPage = () => {
                             <path d="M399.1 1.1c-12.7-3.9-26.1 3.1-30 15.8l-144 464c-3.9 12.7 3.1 26.1 15.8 30s26.1-3.1 30-15.8l144-464c3.9-12.7-3.1-26.1-15.8-30zm71.4 118.5c-9.1 9.7-8.6 24.9 1.1 33.9L580.9 256 471.6 358.5c-9.7 9.1-10.2 24.3-1.1 33.9s24.3 10.2 33.9 1.1l128-120c4.8-4.5 7.6-10.9 7.6-17.5s-2.7-13-7.6-17.5l-128-120c-9.7-9.1-24.9-8.6-33.9 1.1zm-301 0c-9.1-9.7-24.3-10.2-33.9-1.1l-128 120C2.7 243 0 249.4 0 256s2.7 13 7.6 17.5l128 120c9.7 9.1 24.9 8.6 33.9-1.1s8.6-24.9-1.1-33.9L59.1 256 168.4 153.5c9.7-9.1 10.2-24.3 1.1-33.9z" />
                         </svg>
                         <span>Code</span>
+
+                        {/* Status badges */}
+                        {roomStatus === 'private' && (
+                            <span className="roomBadge privateBadge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
+                                    <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                Private
+                            </span>
+                        )}
+                        {isReadOnly && !isAdmin && (
+                            <span className="roomBadge readOnlyBadge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
+                                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                View Only
+                            </span>
+                        )}
+                        {isAdmin && (
+                            <span className="roomBadge adminBadge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
+                                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                Admin
+                            </span>
+                        )}
                     </div>
                     <div className="headerControls">
                         <div className="languageDropdown">
