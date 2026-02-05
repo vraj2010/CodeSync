@@ -1445,8 +1445,135 @@ textarea {
 }
 
 /* =====================================================
-   Voice Chat Controls
+   Admin Controls & Join Requests
 ===================================================== */
+.adminControls {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.adminControls h3 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.controlItem {
+    margin-bottom: 8px;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #e5e7eb;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.checkboxLabel:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.checkboxLabel input[type="checkbox"] {
+    accent-color: #4aed88;
+    width: 16px;
+    height: 16px;
+}
+
+/* Join Request Toast */
+.joinRequestToast {
+    min-width: 240px;
+}
+
+.joinRequestToast p {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1c1e29;
+}
+
+.toastActions {
+    display: flex;
+    gap: 10px;
+}
+
+.approveBtn,
+.denyBtn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.approveBtn {
+    background: #10b981;
+    color: white;
+}
+
+.denyBtn {
+    background: #ef4444;
+    color: white;
+}
+
+.approveBtn:hover,
+.denyBtn:hover {
+    transform: scale(1.05);
+}
+
+/* Waiting Screen */
+.joinRequestWrapper {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1c1e29;
+    color: white;
+}
+
+.joinRequestCard {
+    background: #2a2d3a;
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    max-width: 400px;
+}
+
+.joinRequestCard h3 {
+    margin: 0 0 15px;
+    font-size: 24px;
+    color: #4aed88;
+}
+
+.joinRequestCard p {
+    color: #94a3b8;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.joinRequestCard .leaveBtn {
+    margin-top: 30px;
+}
+
+.joinRequestCard .spinner {
+    margin: 0 auto;
+    border-color: rgba(255, 255, 255, 0.1);
+    border-top-color: #4aed88;
+}
+
 .voiceControls {
     margin-top: 16px;
     padding: 14px;

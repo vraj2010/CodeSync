@@ -94,7 +94,11 @@ function getRoomState(roomId) {
             code: '',
             language: 'javascript',
             input: '',
-            version: 0
+            version: 0,
+            admin: null, // Socket ID of admin
+            status: 'public', // public | private
+            readOnly: false,
+            allowedUsers: new Set(),
         };
     }
     return roomState[roomId];
@@ -104,13 +108,34 @@ io.on('connection', (socket) => {
     console.log('🔌 Socket connected:', socket.id);
 
     socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
+        const state = getRoomState(roomId);
+
+        // Initialize admin if room is new (or admin left and state was kept)
+        if (!state.admin) {
+            state.admin = socket.id;
+            state.allowedUsers.add(socket.id);
+        }
+
+        // Check privacy access
+        // If room is private and user is NOT allowed
+        if (state.status === 'private' && !state.allowedUsers.has(socket.id)) {
+            // Check if admin is online
+            if (state.admin && userSocketMap[state.admin]) {
+                io.to(state.admin).emit(ACTIONS.REQUEST_JOIN, {
+                    username,
+                    socketId: socket.id,
+                });
+                socket.emit(ACTIONS.JOIN_REQUEST, { status: 'waiting', username });
+            } else {
+                socket.emit(ACTIONS.JOIN_DENIED, { reason: 'Admin unavailable' });
+            }
+            return;
+        }
+
         userSocketMap[socket.id] = username;
         socket.join(roomId);
         const clients = getAllConnectedClients(roomId);
         console.log(`👤 ${username} joined room ${roomId}. Total clients: ${clients.length}`);
-
-        // Get room state for syncing
-        const state = getRoomState(roomId);
 
         clients.forEach(({ socketId }) => {
             io.to(socketId).emit(ACTIONS.JOINED, {
@@ -120,12 +145,50 @@ io.on('connection', (socket) => {
             });
         });
 
+        // Emit Room Info (including admin status) to the joiner
+        socket.emit(ACTIONS.ADMIN_UPDATE, {
+            isAdmin: state.admin === socket.id,
+            status: state.status,
+            readOnly: state.readOnly
+        });
+
         // Sync current room state to the new user
         if (clients.length > 1) {
-            // Send current code to the new user
             io.to(socket.id).emit(ACTIONS.CODE_CHANGE, { code: state.code });
             io.to(socket.id).emit(ACTIONS.LANGUAGE_CHANGE, { language: state.language });
             io.to(socket.id).emit(ACTIONS.INPUT_CHANGE, { input: state.input });
+        }
+    });
+
+    // Admin: Approve Join
+    socket.on(ACTIONS.JOIN_APPROVED, ({ socketId, roomId }) => {
+        const state = getRoomState(roomId);
+        if (state.admin === socket.id) {
+            state.allowedUsers.add(socketId);
+            io.to(socketId).emit(ACTIONS.JOIN_APPROVED, { roomId });
+        }
+    });
+
+    // Admin: Deny Join
+    socket.on(ACTIONS.JOIN_DENIED, ({ socketId, roomId }) => {
+        const state = getRoomState(roomId);
+        if (state.admin === socket.id) {
+            io.to(socketId).emit(ACTIONS.JOIN_DENIED, { reason: 'Request denied by admin' });
+        }
+    });
+
+    // Admin: Update Settings (Status/ReadOnly)
+    socket.on(ACTIONS.ADMIN_UPDATE, ({ roomId, status, readOnly }) => {
+        const state = getRoomState(roomId);
+        if (state.admin === socket.id) {
+            if (status) state.status = status;
+            if (typeof readOnly === 'boolean') state.readOnly = readOnly;
+
+            // Broadcast new settings to everyone
+            io.in(roomId).emit(ACTIONS.ADMIN_UPDATE, {
+                status: state.status,
+                readOnly: state.readOnly,
+            });
         }
     });
 
@@ -191,6 +254,26 @@ io.on('connection', (socket) => {
     socket.on('disconnecting', () => {
         const rooms = [...socket.rooms];
         rooms.forEach((roomId) => {
+            // Transfer Admin if needed
+            const state = roomState[roomId];
+            if (state && state.admin === socket.id) {
+                const remainingClients = getAllConnectedClients(roomId).filter(c => c.socketId !== socket.id);
+                if (remainingClients.length > 0) {
+                    const newAdmin = remainingClients[0];
+                    state.admin = newAdmin.socketId;
+                    state.allowedUsers.add(newAdmin.socketId);
+
+                    // Notify everyone about new admin status
+                    remainingClients.forEach(client => {
+                        io.to(client.socketId).emit(ACTIONS.ADMIN_UPDATE, {
+                            isAdmin: client.socketId === state.admin,
+                            status: state.status,
+                            readOnly: state.readOnly
+                        });
+                    });
+                }
+            }
+
             socket.in(roomId).emit(ACTIONS.DISCONNECTED, {
                 socketId: socket.id,
                 username: userSocketMap[socket.id],

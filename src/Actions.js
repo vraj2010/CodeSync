@@ -22,6 +22,13 @@ const ACTIONS = {
     VOICE_ICE_CANDIDATE: 'voice-ice-candidate',
     VOICE_USER_JOINED: 'voice-user-joined',
     VOICE_USER_LEFT: 'voice-user-left',
+
+    // Admin & Access Control
+    REQUEST_JOIN: 'request-join',       // Server -> Admin (Notification)
+    JOIN_REQUEST: 'join-request',       // Client -> Server (User asking to join)
+    JOIN_APPROVED: 'join-approved',     // Server -> User (You can join now)
+    JOIN_DENIED: 'join-denied',         // Server -> User (Sorry)
+    ADMIN_UPDATE: 'admin-update',       // Server -> All (Room settings changed)
 };
 
 module.exports = ACTIONS;

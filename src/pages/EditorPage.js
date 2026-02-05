@@ -106,6 +106,12 @@ const EditorPage = () => {
     // Input state for stdin
     const [input, setInput] = useState('');
 
+    // Admin & Access Control State
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [roomStatus, setRoomStatus] = useState('public');
+    const [isReadOnly, setIsReadOnly] = useState(false);
+    const [joinRequestPending, setJoinRequestPending] = useState(false);
+
     // Socket connection state for voice chat
     const [isSocketConnected, setIsSocketConnected] = useState(false);
 
@@ -200,6 +206,55 @@ const EditorPage = () => {
             // Listen for input changes from other users
             socketRef.current.on(ACTIONS.INPUT_CHANGE, ({ input }) => {
                 setInput(input);
+            });
+
+            // Admin & Access Control Listeners
+            socketRef.current.on(ACTIONS.ADMIN_UPDATE, ({ isAdmin, status, readOnly }) => {
+                if (isAdmin !== undefined) setIsAdmin(isAdmin);
+                if (status) setRoomStatus(status);
+                if (readOnly !== undefined) setIsReadOnly(readOnly);
+            });
+
+            socketRef.current.on(ACTIONS.JOIN_REQUEST, ({ status }) => {
+                if (status === 'waiting') setJoinRequestPending(true);
+            });
+
+            socketRef.current.on(ACTIONS.JOIN_DENIED, ({ reason }) => {
+                toast.error(reason);
+                reactNavigator('/');
+            });
+
+            socketRef.current.on(ACTIONS.JOIN_APPROVED, () => {
+                setJoinRequestPending(false);
+                toast.success('Join request approved!');
+                // Retry join logic
+                socketRef.current.emit(ACTIONS.JOIN, { roomId, username: currentUsername });
+            });
+
+            socketRef.current.on(ACTIONS.REQUEST_JOIN, ({ username, socketId }) => {
+                toast((t) => (
+                    <div className="joinRequestToast">
+                        <p>{username} wants to join</p>
+                        <div className="toastActions">
+                            <button
+                                className="approveBtn"
+                                onClick={() => {
+                                    socketRef.current.emit(ACTIONS.JOIN_APPROVED, { socketId, roomId });
+                                    toast.dismiss(t.id);
+                                }}>
+                                Approve
+                            </button>
+                            <button
+                                className="denyBtn"
+                                onClick={() => {
+                                    socketRef.current.emit(ACTIONS.JOIN_DENIED, { socketId, roomId });
+                                    toast.dismiss(t.id);
+                                }}>
+                                Deny
+                            </button>
+                        </div>
+                    </div>
+                ), { duration: Infinity, position: 'top-right' });
             });
         };
         init();
@@ -306,6 +361,19 @@ const EditorPage = () => {
         return <Navigate to="/" />;
     }
 
+    if (joinRequestPending) {
+        return (
+            <div className="joinRequestWrapper">
+                <div className="joinRequestCard">
+                    <h3>Waiting for Approval</h3>
+                    <p>This room is private. A request has been sent to the admin.</p>
+                    <div className="spinner large"></div>
+                    <button className="btn leaveBtn" onClick={leaveRoom}>Cancel</button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="mainWrap">
             {/* Mobile Menu Button */}
@@ -362,6 +430,38 @@ const EditorPage = () => {
                             />
                         ))}
                     </div>
+
+                    {/* Admin Controls */}
+                    {isAdmin && (
+                        <div className="adminControls">
+                            <h3>Admin Settings</h3>
+                            <div className="controlItem">
+                                <label className="checkboxLabel">
+                                    <input
+                                        type="checkbox"
+                                        checked={roomStatus === 'private'}
+                                        onChange={(e) => {
+                                            const newStatus = e.target.checked ? 'private' : 'public';
+                                            socketRef.current.emit(ACTIONS.ADMIN_UPDATE, { roomId, status: newStatus });
+                                        }}
+                                    />
+                                    Private Room
+                                </label>
+                            </div>
+                            <div className="controlItem">
+                                <label className="checkboxLabel">
+                                    <input
+                                        type="checkbox"
+                                        checked={isReadOnly}
+                                        onChange={(e) => {
+                                            socketRef.current.emit(ACTIONS.ADMIN_UPDATE, { roomId, readOnly: e.target.checked });
+                                        }}
+                                    />
+                                    Read-Only Mode
+                                </label>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Voice Chat Controls */}
@@ -450,6 +550,7 @@ const EditorPage = () => {
                         onCodeChange={(code) => {
                             codeRef.current = code;
                         }}
+                        isReadOnly={!isAdmin && isReadOnly}
                     />
                 </div>
 

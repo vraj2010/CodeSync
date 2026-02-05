@@ -24,7 +24,7 @@ import ACTIONS from '../Actions';
 import { getCodeMirrorMode } from '../utils/languageMapping';
 import { getUserColor } from '../utils/cursorColors';
 
-const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clients = [], currentUsername }) => {
+const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clients = [], currentUsername, isReadOnly = false }) => {
     const editorRef = useRef(null);
     const remoteCursorsRef = useRef({}); // Store remote cursor elements
     const isRemoteChange = useRef(false); // Track if change is from remote
@@ -174,6 +174,13 @@ const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clie
             editorRef.current.setOption('mode', getCodeMirrorMode(language));
         }
     }, [language]);
+
+    // Update readOnly option when it changes
+    useEffect(() => {
+        if (editorRef.current) {
+            editorRef.current.setOption('readOnly', isReadOnly ? 'nocursor' : false);
+        }
+    }, [isReadOnly]);
 
     // Handle socket events
     useEffect(() => {
