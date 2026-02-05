@@ -71,6 +71,9 @@ app.use((req, res, next) => {
 // Store room state for syncing new users
 const roomState = {};
 
+// Track voice chat participants per room
+const voiceParticipants = {};
+
 const userSocketMap = {};
 function getAllConnectedClients(roomId) {
     // Map
@@ -193,14 +196,88 @@ io.on('connection', (socket) => {
                 username: userSocketMap[socket.id],
             });
 
+            // Notify voice participants if user was in voice chat
+            if (voiceParticipants[roomId]?.has(socket.id)) {
+                socket.in(roomId).emit(ACTIONS.VOICE_USER_LEFT, {
+                    socketId: socket.id,
+                    username: userSocketMap[socket.id],
+                });
+                voiceParticipants[roomId].delete(socket.id);
+            }
+
             // Clean up empty rooms
             const clients = getAllConnectedClients(roomId);
             if (clients.length <= 1) {
                 delete roomState[roomId];
+                delete voiceParticipants[roomId];
             }
         });
         delete userSocketMap[socket.id];
         socket.leave();
+    });
+
+    // ============ Voice Chat - WebRTC Signaling ============
+
+    // User joins voice chat
+    socket.on(ACTIONS.VOICE_JOIN, ({ roomId, username }) => {
+        console.log(`🎤 ${username} joined voice chat in room ${roomId}`);
+
+        // Initialize voice participants set for room if not exists
+        if (!voiceParticipants[roomId]) {
+            voiceParticipants[roomId] = new Set();
+        }
+
+        // Notify existing voice participants about new user
+        voiceParticipants[roomId].forEach((participantSocketId) => {
+            io.to(participantSocketId).emit(ACTIONS.VOICE_USER_JOINED, {
+                socketId: socket.id,
+                username,
+            });
+        });
+
+        // Add user to voice participants
+        voiceParticipants[roomId].add(socket.id);
+    });
+
+    // User leaves voice chat
+    socket.on(ACTIONS.VOICE_LEAVE, ({ roomId, username }) => {
+        console.log(`🔇 ${username} left voice chat in room ${roomId}`);
+
+        if (voiceParticipants[roomId]) {
+            voiceParticipants[roomId].delete(socket.id);
+
+            // Notify other voice participants
+            socket.in(roomId).emit(ACTIONS.VOICE_USER_LEFT, {
+                socketId: socket.id,
+                username,
+            });
+        }
+    });
+
+    // WebRTC offer
+    socket.on(ACTIONS.VOICE_OFFER, ({ roomId, targetSocketId, offer, username }) => {
+        io.to(targetSocketId).emit(ACTIONS.VOICE_OFFER, {
+            senderSocketId: socket.id,
+            senderUsername: username,
+            offer,
+        });
+    });
+
+    // WebRTC answer
+    socket.on(ACTIONS.VOICE_ANSWER, ({ roomId, targetSocketId, answer, username }) => {
+        io.to(targetSocketId).emit(ACTIONS.VOICE_ANSWER, {
+            senderSocketId: socket.id,
+            senderUsername: username,
+            answer,
+        });
+    });
+
+    // ICE candidate
+    socket.on(ACTIONS.VOICE_ICE_CANDIDATE, ({ roomId, targetSocketId, candidate }) => {
+        io.to(targetSocketId).emit(ACTIONS.VOICE_ICE_CANDIDATE, {
+            senderSocketId: socket.id,
+            candidate,
+        });
     });
 });
 

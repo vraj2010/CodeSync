@@ -4,6 +4,8 @@ import ACTIONS from '../Actions';
 import Client from '../components/Client';
 import Editor from '../components/Editor';
 import OutputPanel from '../components/OutputPanel';
+import VoiceControls from '../components/VoiceControls';
+import { VoiceRoomProvider } from '../context/VoiceRoomContext';
 import { initSocket } from '../socket';
 import { executeCode } from '../api/codeApi';
 import { SUPPORTED_LANGUAGES, getPistonLanguage } from '../utils/languageMapping';
@@ -104,6 +106,9 @@ const EditorPage = () => {
     // Input state for stdin
     const [input, setInput] = useState('');
 
+    // Socket connection state for voice chat
+    const [isSocketConnected, setIsSocketConnected] = useState(false);
+
     // Get current username
     const currentUsername = location.state?.username;
 
@@ -136,6 +141,9 @@ const EditorPage = () => {
                 roomId,
                 username: currentUsername,
             });
+
+            // Mark socket as connected for voice chat
+            setIsSocketConnected(true);
 
             // Listening for joined event
             socketRef.current.on(
@@ -355,6 +363,17 @@ const EditorPage = () => {
                         ))}
                     </div>
                 </div>
+
+                {/* Voice Chat Controls */}
+                {isSocketConnected && (
+                    <VoiceRoomProvider
+                        socketRef={socketRef}
+                        roomId={roomId}
+                        username={currentUsername}
+                    >
+                        <VoiceControls />
+                    </VoiceRoomProvider>
+                )}
 
                 <button className="btn copyBtn" onClick={copyRoomId}>
                     Copy Room ID

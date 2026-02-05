@@ -1443,3 +1443,178 @@ textarea {
 .CodeMirror-focused .CodeMirror-cursor {
     border-left-color: #4aed88 !important;
 }
+
+/* =====================================================
+   Voice Chat Controls
+===================================================== */
+.voiceControls {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.voiceHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.voiceIcon {
+    width: 18px;
+    height: 18px;
+    color: #4aed88;
+}
+
+.voiceTitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e5e7eb;
+}
+
+.voiceStatus {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+}
+
+.voiceStatus.connected {
+    background: rgba(74, 237, 136, 0.15);
+    color: #4aed88;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.voiceStatus.connecting {
+    background: rgba(52, 152, 219, 0.15);
+    color: #3498db;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.voiceParticipants {
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.participantCount {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.participantList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.participantBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #e5e7eb;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.participantBadge.you {
+    background: rgba(74, 237, 136, 0.15);
+    color: #4aed88;
+}
+
+.voiceButtonGroup {
+    display: flex;
+    gap: 8px;
+}
+
+.voiceBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.voiceBtn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.joinVoiceBtn {
+    background: linear-gradient(135deg, #4aed88, #36d67a);
+    color: #1c1e29;
+    box-shadow: 0 4px 15px rgba(74, 237, 136, 0.25);
+}
+
+.joinVoiceBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 237, 136, 0.35);
+}
+
+.joinVoiceBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.muteBtn {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e5e7eb;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.muteBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.muteBtn.muted {
+    background: rgba(255, 107, 107, 0.15);
+    color: #ff6b6b;
+    border-color: rgba(255, 107, 107, 0.3);
+}
+
+.leaveVoiceBtn {
+    background: rgba(255, 77, 77, 0.15);
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 77, 77, 0.3);
+}
+
+.leaveVoiceBtn:hover {
+    background: rgba(255, 77, 77, 0.25);
+}
+
+/* Voice button spinner */
+.voiceBtn .spinner {
+    width: 14px;
+    height: 14px;
+    border-width: 2px;
+}

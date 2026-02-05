@@ -14,6 +14,14 @@ const ACTIONS = {
     // Input sync
     INPUT_CHANGE: 'input-change',
     SYNC_INPUT: 'sync-input',
+    // Voice chat - WebRTC signaling
+    VOICE_JOIN: 'voice-join',
+    VOICE_LEAVE: 'voice-leave',
+    VOICE_OFFER: 'voice-offer',
+    VOICE_ANSWER: 'voice-answer',
+    VOICE_ICE_CANDIDATE: 'voice-ice-candidate',
+    VOICE_USER_JOINED: 'voice-user-joined',
+    VOICE_USER_LEFT: 'voice-user-left',
 };
 
 module.exports = ACTIONS;
