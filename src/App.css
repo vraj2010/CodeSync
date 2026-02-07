@@ -12,6 +12,8 @@
 *::before,
 *::after {
     box-sizing: border-box;
+    cursor: none !important;
+    /* Force custom cursor everywhere */
 }
 
 html,
@@ -21,7 +23,7 @@ body {
 
 body {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #1c1e29, #151722);
     color: #ffffff;
     overflow: hidden;
@@ -74,13 +76,13 @@ textarea {
    Header / Navbar
 ===================================================== */
 .mainHeader {
-    position: fixed;
+    position: absolute;
     top: 0;
     width: 100%;
     height: 75px;
-    background: rgba(28, 30, 41, 0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom: none;
     z-index: 1000;
 }
 
@@ -165,6 +167,8 @@ textarea {
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
+    background: radial-gradient(circle at top right, #2b313a, #151722);
+    /* Moved background here for seamless merge */
 }
 
 .homePageWrapper {
@@ -173,7 +177,8 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(circle at top right, #2b313a, #151722);
+    justify-content: center;
+    /* background: radial-gradient(circle at top right, #2b313a, #151722); REMOVED */
 }
 
 .formWrapper {
@@ -2220,8 +2225,8 @@ textarea {
 }
 
 .homePageWrapper {
-    /* Rich dark background with subtle pulse */
-    background: radial-gradient(circle at top right, #2b313a, #151722);
+    /* Rich dark background with subtle pulse - ENHANCED */
+    background: radial-gradient(circle at top right, #0f111a 0%, #050507 50%, #0a0c14 100%);
     position: relative;
     padding-top: 100px;
     /* Increased padding to safely clear header */
@@ -2277,19 +2282,9 @@ textarea {
 .orb-1 {
     top: -100px;
     right: -100px;
-    width: 500px;
-    height: 500px;
+    width: 300px;
+    height: 300px;
     background: radial-gradient(circle, #4aed88, #3498db);
-}
-
-.orb-2 {
-    bottom: -100px;
-    left: -100px;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, #8e44ad, #3498db);
-    animation-delay: -5s;
-    animation-duration: 15s;
 }
 
 @keyframes orbitFloat {
@@ -2316,8 +2311,9 @@ textarea {
     max-width: 1200px;
     width: 100%;
     margin: 0 auto;
-    padding-bottom: 60px;
+    /* Removed padding-bottom - features section provides its own */
 }
+
 
 .heroSection {
     text-align: center;
@@ -2357,13 +2353,13 @@ textarea {
 }
 
 .heroTitle {
-    font-size: clamp(42px, 7vw, 64px);
-    font-weight: 800;
+    font-size: clamp(48px, 8vw, 72px);
+    font-weight: 900;
     color: #ffffff;
-    line-height: 1.1;
-    margin: 0 0 24px;
+    line-height: 1.05;
+    margin: 0 0 28px;
     font-family: 'Montserrat', sans-serif;
-    /* Consistent Font */
+    text-shadow: 0 0 20px rgba(74, 237, 136, 0.3), 0 0 40px rgba(74, 237, 136, 0.2);
 }
 
 .gradientText {
@@ -2435,13 +2431,12 @@ textarea {
     width: min(500px, 95vw);
     padding: 36px;
     border-radius: 24px;
-    background: rgba(30, 32, 44, 0.75);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    /* Stronger border */
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, rgba(30, 32, 44, 0.8), rgba(20, 22, 30, 0.6));
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(74, 237, 136, 0.2);
+    /* Enhanced border */
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(74, 237, 136, 0.1);
     animation: fadeInUp 0.8s ease-out 0.2s backwards;
-    /* Staggered entry */
 }
 
 .formHeader {
@@ -2552,17 +2547,22 @@ textarea {
     font-family: 'Montserrat', sans-serif;
 }
 
-/* Features Section - Glassmorphism */
+/* Features Section - Merged with main background */
 .featuresSection {
-    padding: 100px 20px;
-    background: linear-gradient(to bottom, transparent, #11121a);
+    padding: 80px 0 100px;
     position: relative;
+    width: 100%;
+    /* No separate background - inherits from homePageWrapper */
 }
 
+
 .featuresContainer {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 20px;
 }
+
 
 .sectionTitle {
     text-align: center;
@@ -2576,76 +2576,55 @@ textarea {
 
 .featuresGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
 .featureCard {
-    padding: 40px 30px;
+    padding: 40px 28px;
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.03);
-    /* Modern glass look */
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    /* Rounded square corners */
+    background: rgba(25, 30, 40, 0.7);
+    /* Slightly darker card background */
+    border: 1px solid rgba(255, 255, 255, 0.06);
     text-align: center;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
-    overflow: hidden;
+    /* Aspect ratio to make cards more square-like */
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-/* Hover Effect: Lift & Glow */
-.featureCard:hover {
-    transform: translateY(-10px);
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-}
-
-/* Top accent line on hover */
-.featureCard::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, #4aed88, #3498db);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s ease;
-}
-
-.featureCard:hover::before {
-    transform: scaleX(1);
-}
+/* No hover effects as requested */
 
 .featureIcon {
-    width: 70px;
-    height: 70px;
+    width: 56px;
+    height: 56px;
     margin: 0 auto 24px;
-    border-radius: 20px;
-    background: linear-gradient(135deg, rgba(74, 237, 136, 0.1), rgba(52, 152, 219, 0.1));
+    border-radius: 12px;
+    /* Rounded square for icon background */
+    background: rgba(15, 20, 28, 0.9);
+    /* Dark solid background for icons */
     display: flex;
     align-items: center;
     justify-content: center;
     color: #4aed88;
-    transition: transform 0.3s ease;
-    box-shadow: inset 0 0 20px rgba(74, 237, 136, 0.05);
-}
-
-.featureCard:hover .featureIcon {
-    transform: scale(1.1) rotate(5deg);
-    color: #fff;
-    background: linear-gradient(135deg, #4aed88, #3498db);
-    box-shadow: 0 10px 25px rgba(52, 152, 219, 0.3);
+    /* Green icon color */
+    flex-shrink: 0;
 }
 
 .featureIcon svg {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.5;
 }
 
 .featureCard h3 {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 700;
     color: #ffffff;
     margin: 0 0 12px;
@@ -2653,11 +2632,12 @@ textarea {
 }
 
 .featureCard p {
-    font-size: 15px;
+    font-size: 14px;
     color: #94a3b8;
     margin: 0;
-    line-height: 1.6;
+    line-height: 1.65;
 }
+
 
 /* =====================================================
    Waiting Room
@@ -3252,11 +3232,28 @@ textarea {
     }
 
     .featuresGrid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .featureCard {
+        padding: 36px 24px;
+        min-height: 220px;
     }
 
     .navRight .navLink {
         display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .featuresGrid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .featureCard {
+        min-height: auto;
     }
 }
 
@@ -3288,4 +3285,512 @@ textarea {
 
 .cl-footerActionLink {
     color: #4aed88 !important;
+}
+
+/* =====================================================
+   Inspiration / Floating Elements (New)
+===================================================== */
+.floating-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    /* Create a spotlight overlay */
+    background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            rgba(29, 31, 39, 0),
+            /* Transparent center */
+            rgba(0, 0, 0, 0.95)
+            /* Extremely Dark edges */
+        );
+    z-index: 0;
+}
+
+
+
+
+@keyframes floatY {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(var(--rot, 0deg));
+    }
+
+    50% {
+        transform: translateY(-20px) rotate(var(--rot, 0deg));
+    }
+}
+
+@keyframes floatPulse {
+
+    0%,
+    100% {
+        transform: scale(1) translateY(0);
+    }
+
+    50% {
+        transform: scale(1.1) translateY(-10px);
+    }
+}
+
+/* =====================================================
+   Stats Bar (New Footer to Hero)
+===================================================== */
+.stats-bar-wrapper {
+    width: 100%;
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 5;
+}
+
+.stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    padding: 24px 50px;
+    background: rgba(20, 22, 28, 0.6);
+    backdrop-filter: blur(16px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    transition: transform 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(74, 237, 136, 0.15), rgba(52, 152, 219, 0.15));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    color: #4aed88;
+    box-shadow: inset 0 0 15px rgba(74, 237, 136, 0.05);
+}
+
+.stat-icon-wrapper svg {
+    width: 24px;
+    height: 24px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* =====================================================
+   Enhanced Form / Glass Card
+===================================================== */
+.formWrapper {
+    position: relative;
+    z-index: 10;
+    background: rgba(30, 32, 40, 0.75);
+    /* Darker, more contrast */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    /* Subtle border */
+    box-shadow:
+        0 40px 80px rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Glow behind the form */
+.form-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(74, 237, 136, 0.15) 0%, transparent 70%);
+    filter: blur(60px);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Mobile responsive for new elements */
+@media (max-width: 768px) {
+    .floating-elements {
+        display: none;
+        /* Hide floating cards on mobile to avoid clutter */
+    }
+
+    .stats-bar-wrapper {
+        margin-top: 30px;
+        padding: 0 20px;
+    }
+
+    .stats-bar {
+        padding: 20px;
+        gap: 20px;
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: space-around;
+        background: rgba(20, 22, 28, 0.85);
+        /* More opaque on mobile */
+    }
+
+    .stat-item {
+        flex: 1 1 40%;
+    }
+}
+
+
+
+/* FLOAT LAYER */
+.floating-elements {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+.float-zone {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 22vw;
+    /* Adjust if needed */
+}
+
+/* Left gutter */
+.float-zone.left {
+    left: 0;
+}
+
+/* Right gutter */
+.float-zone.right {
+    right: 0;
+}
+
+.float-zone .float-card {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    opacity: 0.75;
+    white-space: nowrap;
+    animation: floatY 8s ease-in-out infinite;
+}
+
+/* LEFT SIDE SCATTER */
+.float-zone.left .float-card:nth-child(1) {
+    top: 20%;
+    left: 20%;
+}
+
+.float-zone.left .float-card:nth-child(2) {
+    top: 30%;
+    left: 75%;
+}
+
+.float-zone.left .float-card:nth-child(3) {
+    top: 60%;
+    left: 25%;
+}
+
+.float-zone.left .float-card:nth-child(4) {
+    top: 80%;
+    left: 35%;
+}
+
+.float-zone.left .float-card:nth-child(5) {
+    top: 45%;
+    left: 15%;
+}
+
+/* RIGHT SIDE SCATTER */
+.float-zone.right .float-card:nth-child(1) {
+    top: 10%;
+    right: 25%;
+}
+
+.float-zone.right .float-card:nth-child(2) {
+    top: 28%;
+    right: 55%;
+}
+
+.float-zone.right .float-card:nth-child(3) {
+    top: 45%;
+    right: 20%;
+}
+
+.float-zone.right .float-card:nth-child(4) {
+    top: 40%;
+    right: 40%;
+}
+
+.float-zone.right .float-card:nth-child(5) {
+    top: 70%;
+    right: 40%;
+}
+
+.float-zone.right .float-card:nth-child(6) {
+    top: 80%;
+    right: 10%;
+}
+
+.float-zone.right .float-card:nth-child(7) {
+    top: 60%;
+    right: 35%;
+}
+
+/* FLOAT ITEM */
+.float-card {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    white-space: nowrap;
+    opacity: 0.85;
+    text-shadow: 0 0 14px currentColor;
+}
+
+/* const sync = async () => {} */
+.float-zone.left .float-card:nth-child(1) {
+    color: #4aed88;
+}
+
+/* λ */
+.float-zone.left .float-card:nth-child(2) {
+    color: #bd93f9;
+    font-size: 72px;
+    opacity: 0.7;
+}
+
+/* { } */
+.float-zone.left .float-card:nth-child(3) {
+    color: #f8f8f2;
+    font-size: 48px;
+    opacity: 0.6;
+}
+
+/* </> */
+.float-zone.left .float-card:nth-child(4) {
+    color: #38BDF8;
+    font-size: 42px;
+    opacity: 0.6;
+}
+
+/* git merge main */
+.float-zone.left .float-card:nth-child(5) {
+    color: #4aed88;
+    opacity: 0.75;
+}
+
+/* >_ */
+.float-zone.right .float-card:nth-child(1) {
+    color: #ffffff;
+    font-size: 48px;
+}
+
+/* // TODO: collaborate */
+.float-zone.right .float-card:nth-child(2) {
+    color: #3d67e6;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* ! */
+.float-zone.right .float-card:nth-child(3) {
+    color: #ff6b6b;
+    font-size: 64px;
+    text-shadow: 0 0 22px rgba(255, 107, 107, 0.7);
+}
+
+/* await collaborate() */
+.float-zone.right .float-card:nth-child(4) {
+    color: #4aed88;
+}
+
+/* ; */
+.float-zone.right .float-card:nth-child(5) {
+    color: #ff79c6;
+    font-size: 56px;
+}
+
+/* # */
+.float-zone.right .float-card:nth-child(6) {
+    color: #ffb86c;
+    font-size: 60px;
+}
+
+/* /api/sync */
+.float-zone.right .float-card:nth-child(7) {
+    color: #3498db;
+    opacity: 0.85;
+}
+
+.float-zone .float-card:nth-child(odd) {
+    opacity: 0.6;
+    transform: scale(0.9);
+}
+
+.float-zone .float-card:nth-child(even) {
+    opacity: 0.9;
+}
+
+/* subtle variation */
+.float-card:nth-child(even) {
+    opacity: 0.5;
+    transform: scale(0.9);
+}
+
+/* CENTER CONTENT SAFETY */
+.homeContent {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* =====================================================
+   Custom Cursor Logic - "Trailing Duplicate" Style
+   Ref: encodepdeu.vercel.app (Green Theme Adaptation)
+===================================================== */
+/* Global hide cursor */
+html,
+body,
+a,
+button,
+input,
+textarea,
+.float-card {
+    cursor: none !important;
+}
+
+.cursor-dot {
+    /* Custom Green Dot */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #4aed88;
+    /* Neon Green Core */
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 5px rgba(74, 237, 136, 0.8);
+    mix-blend-mode: normal;
+    /* High visibility */
+}
+
+.cursor-outline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* The "Duplicate" Effect: A larger, ghostly filled circle following the dot */
+    width: 25px;
+    height: 25px;
+    background-color: rgba(74, 237, 136, 0.25);
+    /* Filled Green, Semi-transparent */
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.15s ease-out, height 0.15s ease-out, background-color 0.2s, opacity 0.2s;
+    border: none;
+    /* Crucial: No border, purely filled */
+    /* Optional: Slight blur for liquid feel */
+    backdrop-filter: blur(1px);
+}
+
+/* Hover state: Outline expands to focus ring */
+.cursor-hover {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(74, 237, 136, 0.15);
+    /* Faint highlight */
+    backdrop-filter: blur(0px);
+}
+
+/* Ensure interactive elements are on top and have relative positioning for pseudo-elements */
+button,
+a,
+input,
+.float-card {
+    position: relative;
+    z-index: 10;
+}
+
+
+/* =====================================================
+   Spotlight Effect on Hover (Excluding Feature Cards)
+===================================================== */
+
+.btn,
+.navBtn,
+.ctaBtn,
+.inputBox {
+    position: relative;
+    overflow: hidden;
+}
+
+/* The Spotlight Glow Layer */
+.btn::after,
+.navBtn::after,
+.ctaBtn::after,
+.inputBox::after {
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    /* Spotlight Gradient: Green glow centered at mouse cursor
+       Using fixed attachment makes the gradient uniform across the screen
+       matching the mouse position (viewport coordinates) */
+    background: radial-gradient(circle 250px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            rgba(74, 237, 136, 0.15),
+            transparent 60%);
+    background-attachment: fixed;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+    /* Above background, below text/content (z-index of content needs to be higher if needed) */
+}
+
+/* Ensure text stays on top of the spotlight glow */
+.btn>*,
+.navBtn>span,
+.ctaBtn>span {
+    position: relative;
+    z-index: 2;
+}
+
+/* On hover, show the spotlight */
+.btn:hover::after,
+.navBtn:hover::after,
+.ctaBtn:hover::after,
+.inputBox:active::after,
+.inputBox:focus::after {
+    opacity: 1;
 }

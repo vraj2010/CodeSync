@@ -10,6 +10,80 @@ const Home = () => {
     const { user } = useUser();
     const [roomId, setRoomId] = useState('');
     const [username, setUserName] = useState('');
+    const containerRef = React.useRef(null);
+    const cursorDotRef = React.useRef(null);
+    const cursorOutlineRef = React.useRef(null);
+
+    // Use refs for animation loop to prevent re-renders
+    const mousePos = React.useRef({ x: 0, y: 0 });
+    const outlinePos = React.useRef({ x: 0, y: 0 });
+    const requestRef = React.useRef();
+    const [hoverButton, setHoverButton] = useState(false);
+
+    // Mouse movement tracker for cursor and spotlight
+    React.useEffect(() => {
+        const handleMouseMove = (e) => {
+            mousePos.current = { x: e.clientX, y: e.clientY };
+
+            // Direct update for the dot (instant)
+            if (cursorDotRef.current) {
+                cursorDotRef.current.style.left = `${e.clientX}px`;
+                cursorDotRef.current.style.top = `${e.clientY}px`;
+            }
+
+            // Update container vars for spotlight
+            if (containerRef.current) {
+                const rect = containerRef.current.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                containerRef.current.style.setProperty('--mouse-x', `${x}px`);
+                containerRef.current.style.setProperty('--mouse-y', `${y}px`);
+            }
+        };
+
+        const animateOutline = () => {
+            // Smooth lerp (0.15 factor for nice lag)
+            const dx = mousePos.current.x - outlinePos.current.x;
+            const dy = mousePos.current.y - outlinePos.current.y;
+
+            outlinePos.current.x += dx * 0.15;
+            outlinePos.current.y += dy * 0.15;
+
+            if (cursorOutlineRef.current) {
+                cursorOutlineRef.current.style.left = `${outlinePos.current.x}px`;
+                cursorOutlineRef.current.style.top = `${outlinePos.current.y}px`;
+
+                // Add keyframes for smoother look if needed, but direct style is performant enough for simple translate
+                // Actually, let's use translate for performance
+                cursorOutlineRef.current.animate({
+                    left: `${outlinePos.current.x}px`,
+                    top: `${outlinePos.current.y}px`
+                }, { duration: 0, fill: "forwards" });
+            }
+
+            requestRef.current = requestAnimationFrame(animateOutline);
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        requestRef.current = requestAnimationFrame(animateOutline);
+
+        // Add hover listeners to clickable elements
+        const addHoverEvents = () => {
+            const clickables = document.querySelectorAll('button, a, input, .float-card');
+            clickables.forEach(el => {
+                el.addEventListener('mouseenter', () => setHoverButton(true));
+                el.addEventListener('mouseleave', () => setHoverButton(false));
+            });
+        };
+
+        // Small delay to ensure DOM is ready
+        setTimeout(addHoverEvents, 500);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        };
+    }, []);
 
     // If user is signed in, use their name
     const displayName = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || username;
@@ -20,6 +94,8 @@ const Home = () => {
         setRoomId(id);
         toast.success('Created a New Room');
     };
+
+
 
     const joinRoom = () => {
         if (!roomId) {
@@ -53,7 +129,11 @@ const Home = () => {
     };
 
     return (
-        <div className="mainContainer">
+        <div className="mainContainer" ref={containerRef}>
+            {/* Custom Cursor Elements */}
+            <div className="cursor-dot" ref={cursorDotRef}></div>
+            <div className={`cursor-outline ${hoverButton ? 'cursor-hover' : ''}`} ref={cursorOutlineRef}></div>
+
             <header className="mainHeader">
                 <nav className="navContent">
                     <div className="navLeft">
@@ -89,6 +169,36 @@ const Home = () => {
                     <div className="orb-1"></div>
                     <div className="orb-2"></div>
                 </div>
+
+                {/* Floating Elements (Background) */}
+                <div className="floating-elements">
+
+                    {/* LEFT SIDE FLOATS */}
+                    <div className="float-zone left">
+                        <div className="float-card">const sync = async () =&gt; {'{}'}</div>
+                        <div className="float-card">λ</div>
+                        <div className="float-card">{'{ }'}</div>
+                        <div className="float-card">&lt;/&gt;</div>
+                        <div className="float-card">git merge main</div>
+                    </div>
+
+                    {/* RIGHT SIDE FLOATS */}
+                    <div className="float-zone right">
+                        <div className="float-card">&gt;_</div>
+                        <div className="float-card">// TODO: collaborate</div>
+                        <div className="float-card">!</div>
+                        <div className="float-card">await collaborate()</div>
+                        <div className="float-card">;</div>
+                        <div className="float-card">#</div>
+                        <div className="float-card">/api/sync</div>
+                    </div>
+
+                </div>
+
+
+
+
+
                 <div className="homeContent">
                     {/* Hero Section */}
                     <div className="heroSection">
@@ -133,6 +243,7 @@ const Home = () => {
 
                     {/* Quick Join Form */}
                     <div className="formWrapper">
+                        <div className="form-glow"></div>
                         <div className="formHeader">
                             <h4 className="mainLabel">Quick Join</h4>
                             <p className="formSubtext">Jump into a workspace instantly</p>
@@ -174,53 +285,92 @@ const Home = () => {
                             </span>
                         </div>
                     </div>
-                </div>
-            </main>
 
-            {/* Features Section */}
-            <section id="features" className="featuresSection">
-                <div className="featuresContainer">
-                    <h2 className="sectionTitle">Why CodeSync?</h2>
-                    <div className="featuresGrid">
-                        <div className="featureCard">
-                            <div className="featureIcon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
+                    {/* Stats Bar */}
+                    <div className="stats-bar-wrapper">
+                        <div className="stats-bar">
+                            <div className="stat-item">
+                                <div className="stat-icon-wrapper">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                                        <circle cx="9" cy="7" r="4" />
+                                        <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                                        <path d="M16 3.13a4 4 0 010 7.75" />
+                                    </svg>
+                                </div>
+                                <div className="stat-value">10k+</div>
+                                <div className="stat-label">Developers</div>
                             </div>
-                            <h3>Real-time Sync</h3>
-                            <p>See your teammates' changes as they type. No delays, no conflicts.</p>
-                        </div>
-                        <div className="featureCard">
-                            <div className="featureIcon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
+                            <div className="stat-item">
+                                <div className="stat-icon-wrapper">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                        <polyline points="14 2 14 8 20 8" />
+                                        <line x1="16" y1="13" x2="8" y2="13" />
+                                        <line x1="16" y1="17" x2="8" y2="17" />
+                                        <polyline points="10 9 9 9 8 9" />
+                                    </svg>
+                                </div>
+                                <div className="stat-value">50k+</div>
+                                <div className="stat-label">Rooms Created</div>
                             </div>
-                            <h3>Private Rooms</h3>
-                            <p>Control who can join your workspace with approval-based access.</p>
-                        </div>
-                        <div className="featureCard">
-                            <div className="featureIcon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
+                            <div className="stat-item">
+                                <div className="stat-icon-wrapper">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                    </svg>
+                                </div>
+                                <div className="stat-value">4.9/5</div>
+                                <div className="stat-label">Rating</div>
                             </div>
-                            <h3>Code Execution</h3>
-                            <p>Run your code in 15+ languages directly in the browser.</p>
-                        </div>
-                        <div className="featureCard">
-                            <div className="featureIcon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                                </svg>
-                            </div>
-                            <h3>Voice Chat</h3>
-                            <p>Communicate with your team using built-in voice chat.</p>
                         </div>
                     </div>
+                    {/* Features Section - Now inside homePageWrapper for unified background */}
+                    <section id="features" className="featuresSection">
+                        <div className="featuresContainer">
+                            <h2 className="sectionTitle">Why CodeSync?</h2>
+                            <div className="featuresGrid">
+                                <div className="featureCard">
+                                    <div className="featureIcon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                    </div>
+                                    <h3>Real-time Sync</h3>
+                                    <p>See your teammates' changes as they type. No delays, no conflicts.</p>
+                                </div>
+                                <div className="featureCard">
+                                    <div className="featureIcon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                    </div>
+                                    <h3>Private Rooms</h3>
+                                    <p>Control who can join your workspace with approval-based access.</p>
+                                </div>
+                                <div className="featureCard">
+                                    <div className="featureIcon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <h3>Code Execution</h3>
+                                    <p>Run your code in 15+ languages directly in the browser.</p>
+                                </div>
+                                <div className="featureCard">
+                                    <div className="featureIcon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                        </svg>
+                                    </div>
+                                    <h3>Voice Chat</h3>
+                                    <p>Communicate with your team using built-in voice chat.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-            </section>
+            </main>
 
             <footer className="footerMain">
                 <div className="footerContent">
