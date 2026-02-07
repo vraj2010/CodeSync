@@ -10,28 +10,13 @@ const Home = () => {
     const { user } = useUser();
     const [roomId, setRoomId] = useState('');
     const [username, setUserName] = useState('');
-    const containerRef = React.useRef(null);
-    const cursorDotRef = React.useRef(null);
-    const cursorOutlineRef = React.useRef(null);
-
-    // Use refs for animation loop to prevent re-renders
-    const mousePos = React.useRef({ x: 0, y: 0 });
-    const outlinePos = React.useRef({ x: 0, y: 0 });
-    const requestRef = React.useRef();
     const [hoverButton, setHoverButton] = useState(false);
 
-    // Mouse movement tracker for cursor and spotlight
+    // Mouse movement tracker for spotlight
     React.useEffect(() => {
         const handleMouseMove = (e) => {
-            mousePos.current = { x: e.clientX, y: e.clientY };
-
-            // Direct update for the dot (instant)
-            if (cursorDotRef.current) {
-                cursorDotRef.current.style.left = `${e.clientX}px`;
-                cursorDotRef.current.style.top = `${e.clientY}px`;
-            }
-
-            // Update container vars for spotlight
+            // Update global CSS variables for spotlight (though document handles it now)
+            // We still keep the containerRef prop if we want it specifically for Home.js content
             if (containerRef.current) {
                 const rect = containerRef.current.getBoundingClientRect();
                 const x = e.clientX - rect.left;
@@ -41,49 +26,11 @@ const Home = () => {
             }
         };
 
-        const animateOutline = () => {
-            // Smooth lerp (0.15 factor for nice lag)
-            const dx = mousePos.current.x - outlinePos.current.x;
-            const dy = mousePos.current.y - outlinePos.current.y;
-
-            outlinePos.current.x += dx * 0.15;
-            outlinePos.current.y += dy * 0.15;
-
-            if (cursorOutlineRef.current) {
-                cursorOutlineRef.current.style.left = `${outlinePos.current.x}px`;
-                cursorOutlineRef.current.style.top = `${outlinePos.current.y}px`;
-
-                // Add keyframes for smoother look if needed, but direct style is performant enough for simple translate
-                // Actually, let's use translate for performance
-                cursorOutlineRef.current.animate({
-                    left: `${outlinePos.current.x}px`,
-                    top: `${outlinePos.current.y}px`
-                }, { duration: 0, fill: "forwards" });
-            }
-
-            requestRef.current = requestAnimationFrame(animateOutline);
-        };
-
         window.addEventListener('mousemove', handleMouseMove);
-        requestRef.current = requestAnimationFrame(animateOutline);
-
-        // Add hover listeners to clickable elements
-        const addHoverEvents = () => {
-            const clickables = document.querySelectorAll('button, a, input, .float-card');
-            clickables.forEach(el => {
-                el.addEventListener('mouseenter', () => setHoverButton(true));
-                el.addEventListener('mouseleave', () => setHoverButton(false));
-            });
-        };
-
-        // Small delay to ensure DOM is ready
-        setTimeout(addHoverEvents, 500);
-
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            if (requestRef.current) cancelAnimationFrame(requestRef.current);
-        };
+        return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
+
+    const containerRef = React.useRef(null);
 
     // If user is signed in, use their name
     const displayName = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || username;
@@ -94,8 +41,6 @@ const Home = () => {
         setRoomId(id);
         toast.success('Created a New Room');
     };
-
-
 
     const joinRoom = () => {
         if (!roomId) {
@@ -130,9 +75,6 @@ const Home = () => {
 
     return (
         <div className="mainContainer" ref={containerRef}>
-            {/* Custom Cursor Elements */}
-            <div className="cursor-dot" ref={cursorDotRef}></div>
-            <div className={`cursor-outline ${hoverButton ? 'cursor-hover' : ''}`} ref={cursorOutlineRef}></div>
 
             <header className="mainHeader">
                 <nav className="navContent">

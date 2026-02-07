@@ -23,7 +23,7 @@ body {
 
 body {
     margin: 0;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #1c1e29, #151722);
     color: #ffffff;
     overflow: hidden;
@@ -2372,6 +2372,7 @@ textarea {
 }
 
 .heroDescription {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     font-size: 18px;
     color: #b0b8c4;
     line-height: 1.7;
@@ -3288,54 +3289,6 @@ textarea {
 }
 
 /* =====================================================
-   Inspiration / Floating Elements (New)
-===================================================== */
-.floating-elements {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-    /* Create a spotlight overlay */
-    background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-            rgba(29, 31, 39, 0),
-            /* Transparent center */
-            rgba(0, 0, 0, 0.95)
-            /* Extremely Dark edges */
-        );
-    z-index: 0;
-}
-
-
-
-
-@keyframes floatY {
-
-    0%,
-    100% {
-        transform: translateY(0) rotate(var(--rot, 0deg));
-    }
-
-    50% {
-        transform: translateY(-20px) rotate(var(--rot, 0deg));
-    }
-}
-
-@keyframes floatPulse {
-
-    0%,
-    100% {
-        transform: scale(1) translateY(0);
-    }
-
-    50% {
-        transform: scale(1.1) translateY(-10px);
-    }
-}
-
-/* =====================================================
    Stats Bar (New Footer to Hero)
 ===================================================== */
 .stats-bar-wrapper {
@@ -3413,15 +3366,12 @@ textarea {
     position: relative;
     z-index: 10;
     background: rgba(30, 32, 40, 0.75);
-    /* Darker, more contrast */
     border: 1px solid rgba(255, 255, 255, 0.08);
-    /* Subtle border */
     box-shadow:
         0 40px 80px rgba(0, 0, 0, 0.5),
         inset 0 1px 1px rgba(255, 255, 255, 0.1);
 }
 
-/* Glow behind the form */
 .form-glow {
     position: absolute;
     width: 100%;
@@ -3435,11 +3385,9 @@ textarea {
     pointer-events: none;
 }
 
-/* Mobile responsive for new elements */
 @media (max-width: 768px) {
     .floating-elements {
-        display: none;
-        /* Hide floating cards on mobile to avoid clutter */
+        display: none !important;
     }
 
     .stats-bar-wrapper {
@@ -3454,7 +3402,6 @@ textarea {
         width: 100%;
         justify-content: space-around;
         background: rgba(20, 22, 28, 0.85);
-        /* More opaque on mobile */
     }
 
     .stat-item {
@@ -3462,41 +3409,75 @@ textarea {
     }
 }
 
-
-
-/* FLOAT LAYER */
+/* =====================================================
+   Subtle Background Computer Science Symbols & Spotlight
+===================================================== */
 .floating-elements {
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 0;
+    overflow: hidden;
+    mask-image: radial-gradient(350px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            black 20%,
+            rgba(0, 0, 0, 0.03) 100%);
+    -webkit-mask-image: radial-gradient(350px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            black 20%,
+            rgba(0, 0, 0, 0.03) 100%);
 }
 
+.float-card {
+    position: absolute;
+    user-select: none;
+    pointer-events: none;
+    z-index: -1;
+    transition: transform 0.1s ease-out;
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: nowrap;
+    opacity: 0.85;
+    text-shadow: 0 0 14px currentColor;
+}
+
+.mainContainer::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: radial-gradient(500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            rgba(74, 237, 136, 0.08),
+            transparent 60%);
+    z-index: 1;
+    mix-blend-mode: screen;
+}
 
 .float-zone {
     position: absolute;
     top: 0;
     bottom: 0;
     width: 22vw;
-    /* Adjust if needed */
 }
 
-/* Left gutter */
 .float-zone.left {
     left: 0;
 }
 
-/* Right gutter */
 .float-zone.right {
     right: 0;
 }
 
 .float-zone .float-card {
     position: absolute;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
-    opacity: 0.75;
-    white-space: nowrap;
     animation: floatY 8s ease-in-out infinite;
 }
 
@@ -3533,7 +3514,7 @@ textarea {
 }
 
 .float-zone.right .float-card:nth-child(2) {
-    top: 28%;
+    top: 25%;
     right: 55%;
 }
 
@@ -3543,7 +3524,7 @@ textarea {
 }
 
 .float-zone.right .float-card:nth-child(4) {
-    top: 40%;
+    top: 35%;
     right: 40%;
 }
 
@@ -3562,85 +3543,65 @@ textarea {
     right: 35%;
 }
 
-/* FLOAT ITEM */
-.float-card {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
-    white-space: nowrap;
-    opacity: 0.85;
-    text-shadow: 0 0 14px currentColor;
-}
-
-/* const sync = async () => {} */
+/* COLORS */
 .float-zone.left .float-card:nth-child(1) {
     color: #4aed88;
 }
 
-/* λ */
 .float-zone.left .float-card:nth-child(2) {
     color: #bd93f9;
     font-size: 72px;
     opacity: 0.7;
 }
 
-/* { } */
 .float-zone.left .float-card:nth-child(3) {
     color: #f8f8f2;
     font-size: 48px;
     opacity: 0.6;
 }
 
-/* </> */
 .float-zone.left .float-card:nth-child(4) {
     color: #38BDF8;
     font-size: 42px;
     opacity: 0.6;
 }
 
-/* git merge main */
 .float-zone.left .float-card:nth-child(5) {
     color: #4aed88;
     opacity: 0.75;
 }
 
-/* >_ */
 .float-zone.right .float-card:nth-child(1) {
     color: #ffffff;
     font-size: 48px;
 }
 
-/* // TODO: collaborate */
 .float-zone.right .float-card:nth-child(2) {
     color: #3d67e6;
     font-style: italic;
     opacity: 0.8;
 }
 
-/* ! */
 .float-zone.right .float-card:nth-child(3) {
     color: #ff6b6b;
     font-size: 64px;
     text-shadow: 0 0 22px rgba(255, 107, 107, 0.7);
 }
 
-/* await collaborate() */
 .float-zone.right .float-card:nth-child(4) {
     color: #4aed88;
 }
 
-/* ; */
 .float-zone.right .float-card:nth-child(5) {
     color: #ff79c6;
     font-size: 56px;
 }
 
-/* # */
 .float-zone.right .float-card:nth-child(6) {
     color: #ffb86c;
     font-size: 60px;
 }
 
-/* /api/sync */
 .float-zone.right .float-card:nth-child(7) {
     color: #3498db;
     opacity: 0.85;
@@ -3655,13 +3616,11 @@ textarea {
     opacity: 0.9;
 }
 
-/* subtle variation */
 .float-card:nth-child(even) {
     opacity: 0.5;
     transform: scale(0.9);
 }
 
-/* CENTER CONTENT SAFETY */
 .homeContent {
     position: relative;
     z-index: 2;
@@ -3670,10 +3629,8 @@ textarea {
 }
 
 /* =====================================================
-   Custom Cursor Logic - "Trailing Duplicate" Style
-   Ref: encodepdeu.vercel.app (Green Theme Adaptation)
+   Custom Cursor Logic
 ===================================================== */
-/* Global hide cursor */
 html,
 body,
 a,
@@ -3685,53 +3642,40 @@ textarea,
 }
 
 .cursor-dot {
-    /* Custom Green Dot */
     position: fixed;
     top: 0;
     left: 0;
     width: 10px;
     height: 10px;
     background-color: #4aed88;
-    /* Neon Green Core */
     border-radius: 50%;
     pointer-events: none;
     z-index: 9999;
     transform: translate(-50%, -50%);
     box-shadow: 0 0 5px rgba(74, 237, 136, 0.8);
-    mix-blend-mode: normal;
-    /* High visibility */
 }
 
 .cursor-outline {
     position: fixed;
     top: 0;
     left: 0;
-    /* The "Duplicate" Effect: A larger, ghostly filled circle following the dot */
     width: 25px;
     height: 25px;
     background-color: rgba(74, 237, 136, 0.25);
-    /* Filled Green, Semi-transparent */
     border-radius: 50%;
     pointer-events: none;
     z-index: 9998;
     transform: translate(-50%, -50%);
     transition: width 0.15s ease-out, height 0.15s ease-out, background-color 0.2s, opacity 0.2s;
-    border: none;
-    /* Crucial: No border, purely filled */
-    /* Optional: Slight blur for liquid feel */
     backdrop-filter: blur(1px);
 }
 
-/* Hover state: Outline expands to focus ring */
 .cursor-hover {
     width: 60px;
     height: 60px;
     background-color: rgba(74, 237, 136, 0.15);
-    /* Faint highlight */
-    backdrop-filter: blur(0px);
 }
 
-/* Ensure interactive elements are on top and have relative positioning for pseudo-elements */
 button,
 a,
 input,
@@ -3740,11 +3684,9 @@ input,
     z-index: 10;
 }
 
-
 /* =====================================================
-   Spotlight Effect on Hover (Excluding Feature Cards)
+   Spotlight Effect on Hover
 ===================================================== */
-
 .btn,
 .navBtn,
 .ctaBtn,
@@ -3753,7 +3695,6 @@ input,
     overflow: hidden;
 }
 
-/* The Spotlight Glow Layer */
 .btn::after,
 .navBtn::after,
 .ctaBtn::after,
@@ -3766,27 +3707,14 @@ input,
     right: 0;
     bottom: 0;
     opacity: 0;
-    /* Spotlight Gradient: Green glow centered at mouse cursor
-       Using fixed attachment makes the gradient uniform across the screen
-       matching the mouse position (viewport coordinates) */
     background: radial-gradient(circle 250px at var(--mouse-x, 50%) var(--mouse-y, 50%),
             rgba(74, 237, 136, 0.15),
             transparent 60%);
     background-attachment: fixed;
     transition: opacity 0.3s ease;
     z-index: 1;
-    /* Above background, below text/content (z-index of content needs to be higher if needed) */
 }
 
-/* Ensure text stays on top of the spotlight glow */
-.btn>*,
-.navBtn>span,
-.ctaBtn>span {
-    position: relative;
-    z-index: 2;
-}
-
-/* On hover, show the spotlight */
 .btn:hover::after,
 .navBtn:hover::after,
 .ctaBtn:hover::after,

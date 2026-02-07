@@ -8,40 +8,42 @@ import Dashboard from './pages/Dashboard';
 import EditorPage from './pages/EditorPage';
 import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
+import CustomCursor from './components/CustomCursor';
 
 function App() {
     return (
         <AuthProvider>
-            <div>
-                <Toaster
-                    position="top-center"
-                    toastOptions={{
-                        success: {
-                            theme: {
-                                primary: '#4aed88',
-                            },
-                            style: {
-                                background: 'rgba(40, 42, 54, 0.95)',
-                                color: '#e5e7eb',
-                                border: '1px solid rgba(74, 237, 136, 0.3)',
-                            },
-                        },
-                        error: {
-                            style: {
-                                background: 'rgba(40, 42, 54, 0.95)',
-                                color: '#e5e7eb',
-                                border: '1px solid rgba(255, 77, 77, 0.3)',
-                            },
-                        },
-                        style: {
-                            background: 'rgba(40, 42, 54, 0.95)',
-                            color: '#e5e7eb',
-                            backdropFilter: 'blur(10px)',
-                        },
-                    }}
-                ></Toaster>
-            </div>
             <BrowserRouter>
+                <CustomCursor />
+                <div>
+                    <Toaster
+                        position="top-center"
+                        toastOptions={{
+                            success: {
+                                theme: {
+                                    primary: '#4aed88',
+                                },
+                                style: {
+                                    background: 'rgba(40, 42, 54, 0.95)',
+                                    color: '#e5e7eb',
+                                    border: '1px solid rgba(74, 237, 136, 0.3)',
+                                },
+                            },
+                            error: {
+                                style: {
+                                    background: 'rgba(40, 42, 54, 0.95)',
+                                    color: '#e5e7eb',
+                                    border: '1px solid rgba(255, 77, 77, 0.3)',
+                                },
+                            },
+                            style: {
+                                background: 'rgba(40, 42, 54, 0.95)',
+                                color: '#e5e7eb',
+                                backdropFilter: 'blur(10px)',
+                            },
+                        }}
+                    ></Toaster>
+                </div>
                 <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<Home />} />
