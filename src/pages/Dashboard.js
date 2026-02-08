@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { v4 as uuidV4 } from 'uuid';
 import { useNavigate } from 'react-router-dom';
-import { useUser, useClerk, UserButton } from '@clerk/clerk-react';
+import { useUser, UserButton } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
     const navigate = useNavigate();
     const { user } = useUser();
-    const { signOut } = useClerk();
     const [roomId, setRoomId] = useState('');
     const [isCreating, setIsCreating] = useState(false);
 
@@ -165,7 +164,7 @@ const Dashboard = () => {
                 <div className="footerContent">
                     <span>© {new Date().getFullYear()} CodeSync. All rights reserved.</span>
                     <span className="authorTag">
-                        Built with ❤️ by <a href="https://github.com/vraj2010">Vraj Patel</a>
+                        Code. Create. Collaborate. — <a href="https://github.com/vraj2010">Vraj Patel</a>
                     </span>
                 </div>
             </footer>

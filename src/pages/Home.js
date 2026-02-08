@@ -10,27 +10,8 @@ const Home = () => {
     const { user } = useUser();
     const [roomId, setRoomId] = useState('');
     const [username, setUserName] = useState('');
-    const [hoverButton, setHoverButton] = useState(false);
 
-    // Mouse movement tracker for spotlight
-    React.useEffect(() => {
-        const handleMouseMove = (e) => {
-            // Update global CSS variables for spotlight (though document handles it now)
-            // We still keep the containerRef prop if we want it specifically for Home.js content
-            if (containerRef.current) {
-                const rect = containerRef.current.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                containerRef.current.style.setProperty('--mouse-x', `${x}px`);
-                containerRef.current.style.setProperty('--mouse-y', `${y}px`);
-            }
-        };
 
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
-
-    const containerRef = React.useRef(null);
 
     // If user is signed in, use their name
     const displayName = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || username;
@@ -74,7 +55,7 @@ const Home = () => {
     };
 
     return (
-        <div className="mainContainer" ref={containerRef}>
+        <div className="mainContainer">
 
             <header className="mainHeader">
                 <nav className="navContent">
@@ -127,7 +108,7 @@ const Home = () => {
                     {/* RIGHT SIDE FLOATS */}
                     <div className="float-zone right">
                         <div className="float-card">&gt;_</div>
-                        <div className="float-card">// TODO: collaborate</div>
+                        <div className="float-card">{'// TODO: collaborate'}</div>
                         <div className="float-card">!</div>
                         <div className="float-card">await collaborate()</div>
                         <div className="float-card">;</div>
@@ -223,7 +204,7 @@ const Home = () => {
                             </button>
                             <span className="createInfo">
                                 Don't have a Room ID? &nbsp;
-                                <a onClick={createNewRoom} href="#" className="createNewBtn">Generate New Room</a>
+                                <button onClick={createNewRoom} className="createNewBtn linkStyle">Generate New Room</button>
                             </span>
                         </div>
                     </div>
@@ -319,7 +300,7 @@ const Home = () => {
                     <span>&copy; {new Date().getFullYear()} CodeSync. All rights reserved.</span>
                     <div className="footerLinks">
                         <span className="authorTag">
-                            Built with ❤️ by <a href="https://github.com/vraj2010">Vraj Patel</a>
+                            Code. Create. Collaborate. — <a href="https://github.com/vraj2010">Vraj Patel</a>
                         </span>
                     </div>
                 </div>

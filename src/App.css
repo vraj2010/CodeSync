@@ -4,6 +4,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 /* =====================================================
    Base Reset
@@ -23,10 +25,12 @@ body {
 
 body {
     margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #1c1e29, #151722);
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    background: #0f111a;
+    background-image: radial-gradient(circle at 50% -20%, #1c1e29, #0f111a);
+    background-attachment: fixed;
     color: #ffffff;
-    overflow: hidden;
+    min-height: 100vh;
 }
 
 /* =====================================================
@@ -164,11 +168,9 @@ textarea {
 .mainContainer {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    overflow-y: auto;
+    min-height: 100vh;
     overflow-x: hidden;
-    background: radial-gradient(circle at top right, #2b313a, #151722);
-    /* Moved background here for seamless merge */
+    background: transparent;
 }
 
 .homePageWrapper {
@@ -259,10 +261,25 @@ textarea {
 }
 
 .createNewBtn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    cursor: pointer;
     color: #4aed88;
     font-weight: 600;
     text-decoration: none;
     border-bottom: 1px solid rgba(74, 237, 136, 0.3);
+}
+
+.linkStyle {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    outline: none;
 }
 
 /* =====================================================
@@ -414,7 +431,10 @@ textarea {
 
 .asideInner {
     flex: 1;
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
+    padding-right: 4px;
 }
 
 .logo {
@@ -458,8 +478,32 @@ textarea {
 .clientsList {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
     margin-top: 8px;
+    max-height: 260px;
+    /* Constrain height for users */
+    overflow-y: auto;
+    /* Individual scrolling */
+    padding-right: 8px;
+    margin-bottom: 20px;
+}
+
+/* Custom Scrollbar for Users List */
+.clientsList::-webkit-scrollbar {
+    width: 4px;
+}
+
+.clientsList::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.clientsList::-webkit-scrollbar-thumb {
+    background: rgba(74, 237, 136, 0.15);
+    border-radius: 10px;
+}
+
+.clientsList::-webkit-scrollbar-thumb:hover {
+    background: rgba(74, 237, 136, 0.35);
 }
 
 .client {
@@ -1799,12 +1843,11 @@ textarea {
    Authentication Pages
 ===================================================== */
 .authPageWrapper {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #1c1e29, #151722);
+    background: transparent;
     position: relative;
-    overflow-y: auto;
     overflow-x: hidden;
 }
 
@@ -1871,9 +1914,10 @@ textarea {
 }
 
 .authHeader {
-    padding: 20px 30px;
+    padding: 30px 30px 0px;
     display: flex;
     align-items: center;
+    justify-content: center;
     z-index: 10;
 }
 
@@ -1882,7 +1926,7 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 15px 20px 40px;
     z-index: 10;
 }
 
@@ -1892,7 +1936,7 @@ textarea {
 }
 
 .authFooter {
-    padding: 20px;
+    padding: 10px;
     text-align: center;
     font-size: 13px;
     color: #94a3b8;
@@ -1905,7 +1949,7 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #1c1e29, #151722);
+    background: transparent;
 }
 
 .authLoadingCard {
@@ -1941,12 +1985,11 @@ textarea {
    Dashboard Page
 ===================================================== */
 .dashboardWrapper {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #1c1e29, #151722);
+    background: transparent;
     position: relative;
-    overflow-y: auto;
     overflow-x: hidden;
 }
 
@@ -2015,8 +2058,10 @@ textarea {
 }
 
 .welcomeTitle {
-    font-size: 36px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 42px;
     font-weight: 700;
+    letter-spacing: -1.5px;
     color: #ffffff;
     margin: 0 0 12px;
     line-height: 1.2;
@@ -2029,7 +2074,7 @@ textarea {
     color: transparent;
     font-size: inherit;
     text-transform: none;
-    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
 }
 
 .welcomeSubtitle {
@@ -2090,8 +2135,9 @@ textarea {
 }
 
 .actionCard h3 {
+    font-family: 'Outfit', sans-serif;
     font-size: 20px;
-    font-weight: 700;
+    font-weight: 600;
     color: #ffffff;
     margin: 0 0 10px;
 }
@@ -3288,6 +3334,40 @@ textarea {
     color: #4aed88 !important;
 }
 
+.cl-userButtonPopoverCard {
+    color-scheme: dark !important;
+}
+
+body .cl-userButtonPopoverActionButtonText,
+body .cl-userButtonPopoverActionButtonText * {
+    color: #e5e7eb !important;
+}
+
+body .cl-userButtonPopoverActionButton:hover .cl-userButtonPopoverActionButtonText,
+body .cl-userButtonPopoverActionButton:hover .cl-userButtonPopoverActionButtonText * {
+    color: #4aed88 !important;
+    -webkit-text-fill-color: #4aed88 !important;
+}
+
+/* Force User Popover Hover Contrast */
+body .cl-userButtonPopoverActionButton:hover {
+    background-color: rgba(74, 237, 136, 0.15) !important;
+    color: #4aed88 !important;
+}
+
+body .cl-userButtonPopoverActionButton:hover * {
+    color: #4aed88 !important;
+    fill: #4aed88 !important;
+    -webkit-text-fill-color: #4aed88 !important;
+}
+
+/* Ensure icons also change */
+body .cl-userButtonPopoverActionButton:hover svg,
+body .cl-userButtonPopoverActionButton:hover path {
+    stroke: #4aed88 !important;
+    fill: #4aed88 !important;
+}
+
 /* =====================================================
    Stats Bar (New Footer to Hero)
 ===================================================== */
@@ -3650,7 +3730,8 @@ textarea,
     background-color: #4aed88;
     border-radius: 50%;
     pointer-events: none;
-    z-index: 9999;
+    z-index: 2147483647;
+    /* Max possible z-index */
     transform: translate(-50%, -50%);
     box-shadow: 0 0 5px rgba(74, 237, 136, 0.8);
 }
@@ -3664,7 +3745,8 @@ textarea,
     background-color: rgba(74, 237, 136, 0.25);
     border-radius: 50%;
     pointer-events: none;
-    z-index: 9998;
+    z-index: 2147483646;
+    /* Just below dot */
     transform: translate(-50%, -50%);
     transition: width 0.15s ease-out, height 0.15s ease-out, background-color 0.2s, opacity 0.2s;
     backdrop-filter: blur(1px);

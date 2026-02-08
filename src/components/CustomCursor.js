@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
 
 const CustomCursor = () => {
     const cursorDotRef = useRef(null);
@@ -8,7 +7,6 @@ const CustomCursor = () => {
     const outlinePos = useRef({ x: 0, y: 0 });
     const requestRef = useRef();
     const [hoverButton, setHoverButton] = useState(false);
-    const location = useLocation();
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -50,21 +48,32 @@ const CustomCursor = () => {
         };
     }, []);
 
-    // Re-attach hover listeners on route change and initial mount
+    // Use event delegation for hover states (works for dynamic elements like Clerk popovers)
     useEffect(() => {
-        const addHoverEvents = () => {
-            const clickables = document.querySelectorAll('button, a, input, textarea, .float-card, .createNewBtn');
-            clickables.forEach(el => {
-                el.addEventListener('mouseenter', () => setHoverButton(true));
-                el.addEventListener('mouseleave', () => setHoverButton(false));
-            });
+        const handleMouseOver = (e) => {
+            // Check if the hovered element or its parent matches our interactive selectors
+            const target = e.target.closest('button, a, input, textarea, .float-card, .createNewBtn, .cl-userButtonPopoverActionButton, .cl-userButtonTrigger, .cl-footerActionLink, .actionBtn');
+            if (target) {
+                setHoverButton(true);
+            }
         };
 
-        // Small delay to ensure DOM is ready after route change
-        const timer = setTimeout(addHoverEvents, 500);
+        const handleMouseOut = (e) => {
+            const target = e.target.closest('button, a, input, textarea, .float-card, .createNewBtn, .cl-userButtonPopoverActionButton, .cl-userButtonTrigger, .cl-footerActionLink, .actionBtn');
+            if (target) {
+                setHoverButton(false);
+            }
+        };
 
-        return () => clearTimeout(timer);
-    }, [location.pathname]);
+        // Add listeners to document to catch all events regardless of when elements are created
+        document.addEventListener('mouseover', handleMouseOver);
+        document.addEventListener('mouseout', handleMouseOut);
+
+        return () => {
+            document.removeEventListener('mouseover', handleMouseOver);
+            document.removeEventListener('mouseout', handleMouseOut);
+        };
+    }, []);
 
     return (
         <>
