@@ -23,6 +23,7 @@ export const useVoiceRoom = () => {
 export const VoiceRoomProvider = ({ children, socketRef, roomId, username }) => {
     // State
     const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
+    const isVoiceEnabledRef = useRef(false);
     const [isMuted, setIsMuted] = useState(false);
     const [voiceParticipants, setVoiceParticipants] = useState([]);
     const [connectionStatus, setConnectionStatus] = useState('disconnected'); // 'disconnected' | 'connecting' | 'connected'
@@ -63,7 +64,7 @@ export const VoiceRoomProvider = ({ children, socketRef, roomId, username }) => 
 
         // Handle incoming remote stream
         peerConnection.ontrack = (event) => {
-            console.log('🎧 Received remote track from:', targetUsername);
+            console.log('Received remote track from:', targetUsername);
 
             // Create or get audio element for this peer
             if (!remoteAudioRefs.current[targetSocketId]) {
@@ -97,7 +98,7 @@ export const VoiceRoomProvider = ({ children, socketRef, roomId, username }) => 
 
         // Handle connection state changes
         peerConnection.onconnectionstatechange = () => {
-            console.log(`📡 Connection state with ${targetUsername}:`, peerConnection.connectionState);
+            console.log(`Connection status with ${targetUsername}:`, peerConnection.connectionState);
 
             if (peerConnection.connectionState === 'failed' ||
                 peerConnection.connectionState === 'disconnected') {
@@ -209,6 +210,7 @@ export const VoiceRoomProvider = ({ children, socketRef, roomId, username }) => 
 
             localStreamRef.current = stream;
             setIsVoiceEnabled(true);
+            isVoiceEnabledRef.current = true;
             setConnectionStatus('connected');
 
             // Notify server that we joined voice
@@ -219,7 +221,7 @@ export const VoiceRoomProvider = ({ children, socketRef, roomId, username }) => 
                 });
             }
 
-            console.log('🎤 Voice chat joined successfully');
+            console.log('Voice chat joined successfully');
         } catch (error) {
             console.error('Failed to join voice chat:', error);
             setConnectionStatus('disconnected');
@@ -260,7 +262,7 @@ export const VoiceRoomProvider = ({ children, socketRef, roomId, username }) => 
         setVoiceParticipants([]);
         setConnectionStatus('disconnected');
 
-        console.log('🔇 Left voice chat');
+        console.log('Left voice chat');
     }, [roomId, socketRef, username, cleanupPeerConnection]);
 
     // Toggle mute
@@ -270,7 +272,7 @@ export const VoiceRoomProvider = ({ children, socketRef, roomId, username }) => 
             if (audioTrack) {
                 audioTrack.enabled = !audioTrack.enabled;
                 setIsMuted(!audioTrack.enabled);
-                console.log(audioTrack.enabled ? '🔊 Unmuted' : '🔇 Muted');
+                console.log(audioTrack.enabled ? 'Unmuted' : 'Muted');
             }
         }
     }, []);
@@ -282,7 +284,7 @@ export const VoiceRoomProvider = ({ children, socketRef, roomId, username }) => 
 
         // When another user joins voice chat
         const handleUserJoined = ({ socketId: peerSocketId, username: peerUsername }) => {
-            console.log(`🎤 ${peerUsername} joined voice chat`);
+            console.log(`${peerUsername} joined voice chat`);
 
             // Only create offer if we're already in voice chat
             if (isVoiceEnabled && localStreamRef.current) {
@@ -292,7 +294,7 @@ export const VoiceRoomProvider = ({ children, socketRef, roomId, username }) => 
 
         // When another user leaves voice chat
         const handleUserLeft = ({ socketId: peerSocketId, username: peerUsername }) => {
-            console.log(`🔇 ${peerUsername} left voice chat`);
+            console.log(`${peerUsername} left voice chat`);
             cleanupPeerConnection(peerSocketId);
             setVoiceParticipants(prev =>
                 prev.filter(p => p.socketId !== peerSocketId)
@@ -334,11 +336,11 @@ export const VoiceRoomProvider = ({ children, socketRef, roomId, username }) => 
     // Cleanup on unmount
     useEffect(() => {
         return () => {
-            if (isVoiceEnabled) {
+            if (isVoiceEnabledRef.current) {
                 leaveVoice();
             }
         };
-    }, []);
+    }, [leaveVoice]);
 
     const value = {
         // State

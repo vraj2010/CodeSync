@@ -14,7 +14,6 @@ import { SUPPORTED_LANGUAGES, getPistonLanguage } from '../utils/languageMapping
 import {
     useLocation,
     useNavigate,
-    Navigate,
     useParams,
 } from 'react-router-dom';
 
@@ -111,6 +110,19 @@ const EditorPage = () => {
     // Input state for stdin
     const [input, setInput] = useState('');
 
+    // Refs for syncing to newcomers (to avoid useEffect re-init)
+    const selectedLanguageRef = useRef(selectedLanguage);
+    const inputRef = useRef(input);
+
+    // Sync refs when state changes
+    useEffect(() => {
+        selectedLanguageRef.current = selectedLanguage;
+    }, [selectedLanguage]);
+
+    useEffect(() => {
+        inputRef.current = input;
+    }, [input]);
+
     // Admin & Access Control State
     const [isAdmin, setIsAdmin] = useState(false);
     const [roomStatus, setRoomStatus] = useState('public');
@@ -175,12 +187,12 @@ const EditorPage = () => {
                     });
                     // Sync language to new user
                     socketRef.current.emit(ACTIONS.SYNC_LANGUAGE, {
-                        language: selectedLanguage,
+                        language: selectedLanguageRef.current,
                         socketId,
                     });
                     // Sync input to new user
                     socketRef.current.emit(ACTIONS.SYNC_INPUT, {
-                        input: input,
+                        input: inputRef.current,
                         socketId,
                     });
                 }
@@ -190,7 +202,9 @@ const EditorPage = () => {
             socketRef.current.on(
                 ACTIONS.DISCONNECTED,
                 ({ socketId, username }) => {
-                    toast(`⚠️${username} has left the workspace.`);
+                    if (username) {
+                        toast(`! ${username} has left the workspace.`);
+                    }
                     setClients((prev) => {
                         return prev.filter(
                             (client) => client.socketId !== socketId
@@ -249,34 +263,6 @@ const EditorPage = () => {
                     if (prev.find(r => r.socketId === socketId)) return prev;
                     return [...prev, { username, socketId }];
                 });
-
-                // Also show a toast notification
-                toast((t) => (
-                    <div className="joinRequestToast">
-                        <p><strong>{username}</strong> wants to join</p>
-                        <div className="toastActions">
-                            <button
-                                className="approveBtn"
-                                onClick={() => {
-                                    socketRef.current.emit(ACTIONS.JOIN_APPROVED, { socketId, roomId });
-                                    setPendingRequests((prev) => prev.filter(r => r.socketId !== socketId));
-                                    toast.dismiss(t.id);
-                                    toast.success(`${username} has been approved!`);
-                                }}>
-                                Approve
-                            </button>
-                            <button
-                                className="denyBtn"
-                                onClick={() => {
-                                    socketRef.current.emit(ACTIONS.JOIN_DENIED, { socketId, roomId });
-                                    setPendingRequests((prev) => prev.filter(r => r.socketId !== socketId));
-                                    toast.dismiss(t.id);
-                                }}>
-                                Deny
-                            </button>
-                        </div>
-                    </div>
-                ), { duration: Infinity, position: 'top-right' });
             });
         };
         init();
@@ -295,7 +281,7 @@ const EditorPage = () => {
                 socketRef.current.off(ACTIONS.REQUEST_JOIN);
             }
         };
-    }, [isUserLoaded, currentUsername, roomId, reactNavigator]);
+    }, [isUserLoaded, currentUsername, roomId, reactNavigator, inputRef, selectedLanguageRef]);
 
     // Handle language change
     const handleLanguageChange = useCallback((e) => {

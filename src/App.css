@@ -316,7 +316,9 @@ textarea {
     display: grid;
     grid-template-columns: 260px 1fr;
     height: 100vh;
+    max-height: 100vh;
     position: relative;
+    overflow: hidden;
 }
 
 .aside {
@@ -325,6 +327,8 @@ textarea {
     padding: 18px;
     background: linear-gradient(180deg, #1c1e29, #171824);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
+    height: 100vh;
+    overflow: hidden;
 }
 
 /* =====================================================
@@ -434,7 +438,26 @@ textarea {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    padding-right: 4px;
+    overflow-x: hidden;
+    padding-right: 8px;
+}
+
+/* Sidebar Custom Scrollbar */
+.asideInner::-webkit-scrollbar {
+    width: 5px;
+}
+
+.asideInner::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.asideInner::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.asideInner::-webkit-scrollbar-thumb:hover {
+    background: rgba(74, 237, 136, 0.25);
 }
 
 .logo {
@@ -480,31 +503,10 @@ textarea {
     flex-direction: column;
     gap: 10px;
     margin-top: 8px;
-    max-height: 260px;
-    /* Constrain height for users */
-    overflow-y: auto;
-    /* Individual scrolling */
-    padding-right: 8px;
     margin-bottom: 20px;
 }
 
-/* Custom Scrollbar for Users List */
-.clientsList::-webkit-scrollbar {
-    width: 4px;
-}
 
-.clientsList::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.clientsList::-webkit-scrollbar-thumb {
-    background: rgba(74, 237, 136, 0.15);
-    border-radius: 10px;
-}
-
-.clientsList::-webkit-scrollbar-thumb:hover {
-    background: rgba(74, 237, 136, 0.35);
-}
 
 .client {
     display: flex;
@@ -558,7 +560,6 @@ textarea {
 .sidebarFooter {
     margin-top: auto;
     padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -1543,7 +1544,6 @@ textarea {
 .adminControls {
     margin-top: 20px;
     padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .adminControls h3 {
@@ -2991,7 +2991,6 @@ textarea {
 .adminControls {
     margin-top: 20px;
     padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .adminControls h3 {
@@ -3024,13 +3023,40 @@ textarea {
 }
 
 .checkboxLabel input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    display: none;
+}
+
+.checkboxCustom {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.4);
     background: transparent;
-    cursor: pointer;
-    accent-color: #4aed88;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.checkboxLabel:hover .checkboxCustom {
+    border-color: #4aed88;
+    box-shadow: 0 0 10px rgba(74, 237, 136, 0.2);
+}
+
+.checkboxLabel input[type="checkbox"]:checked+.checkboxCustom {
+    background: #4aed88;
+    border-color: #4aed88;
+}
+
+.checkboxLabel input[type="checkbox"]:checked+.checkboxCustom::after {
+    content: '';
+    width: 10px;
+    height: 5px;
+    border-left: 2px solid #171824;
+    border-bottom: 2px solid #171824;
+    transform: rotate(-45deg) translate(1px, -1px);
 }
 
 /* Pending Requests */

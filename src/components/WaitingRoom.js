@@ -17,7 +17,7 @@ const WaitingRoom = ({ socket, roomId, onApproved, onDenied }) => {
         const handleApproved = ({ roomId: approvedRoomId }) => {
             if (approvedRoomId === roomId) {
                 setStatus('approved');
-                toast.success('🎉 Your request has been approved!');
+                toast.success('Your request has been approved!');
                 if (onApproved) onApproved();
             }
         };
@@ -53,6 +53,9 @@ const WaitingRoom = ({ socket, roomId, onApproved, onDenied }) => {
     };
 
     const handleCancel = () => {
+        if (socket) {
+            socket.emit(ACTIONS.CANCEL_JOIN_REQUEST, { roomId });
+        }
         toast('Request cancelled');
         navigate('/dashboard');
     };
@@ -153,7 +156,7 @@ const WaitingRoom = ({ socket, roomId, onApproved, onDenied }) => {
                 {/* Tips */}
                 {status === 'waiting' && (
                     <div className="waitingTips">
-                        <p>💡 <strong>Tip:</strong> The admin will see your name and profile picture.</p>
+                        <p><strong>Tip:</strong> The admin will see your name and profile picture.</p>
                     </div>
                 )}
             </div>

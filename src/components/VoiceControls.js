@@ -24,13 +24,13 @@ const VoiceControls = () => {
 
     const handleLeaveVoice = () => {
         leaveVoice();
-        toast.success('Left voice chat');
+        toast.success('! Left voice chat');
     };
 
     const handleToggleMute = () => {
         toggleMute();
         toast.success(isMuted ? 'Microphone unmuted' : 'Microphone muted', {
-            icon: isMuted ? '🔊' : '🔇',
+            icon: isMuted ? '' : '',
             duration: 1500,
         });
     };

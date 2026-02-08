@@ -29,6 +29,7 @@ const ACTIONS = {
     JOIN_APPROVED: 'join-approved',     // Server -> User (You can join now)
     JOIN_DENIED: 'join-denied',         // Server -> User (Sorry)
     ADMIN_UPDATE: 'admin-update',       // Server -> All (Room settings changed)
+    CANCEL_JOIN_REQUEST: 'cancel-join-request', // Client -> Server (User cancelled)
 };
 
 module.exports = ACTIONS;

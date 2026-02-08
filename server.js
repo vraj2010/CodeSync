@@ -42,7 +42,7 @@ const io = new Server(server, {
 
 // Log all socket.io errors
 io.engine.on('connection_error', (err) => {
-    console.error('❌ Socket.io connection error:', err.code, err.message);
+    console.error('Socket.io connection error:', err.code, err.message);
 });
 
 // Middleware - Allow all origins for API requests
@@ -105,7 +105,7 @@ function getRoomState(roomId) {
 }
 
 io.on('connection', (socket) => {
-    console.log('🔌 Socket connected:', socket.id);
+    console.log('Socket connected:', socket.id);
 
     socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
         const state = getRoomState(roomId);
@@ -121,6 +121,9 @@ io.on('connection', (socket) => {
         if (state.status === 'private' && !state.allowedUsers.has(socket.id)) {
             // Check if admin is online
             if (state.admin && userSocketMap[state.admin]) {
+                // Track that this socket is waiting for this room
+                socket.waitingRoomId = roomId;
+
                 io.to(state.admin).emit(ACTIONS.REQUEST_JOIN, {
                     username,
                     socketId: socket.id,
@@ -133,9 +136,10 @@ io.on('connection', (socket) => {
         }
 
         userSocketMap[socket.id] = username;
+        socket.waitingRoomId = null; // Clear waiting status as they are now joining
         socket.join(roomId);
         const clients = getAllConnectedClients(roomId);
-        console.log(`👤 ${username} joined room ${roomId}. Total clients: ${clients.length}`);
+        console.log(`${username} joined room ${roomId}. Total clients: ${clients.length}`);
 
         clients.forEach(({ socketId }) => {
             io.to(socketId).emit(ACTIONS.JOINED, {
@@ -175,6 +179,18 @@ io.on('connection', (socket) => {
         if (state.admin === socket.id) {
             io.to(socketId).emit(ACTIONS.JOIN_DENIED, { reason: 'Request denied by admin' });
         }
+    });
+
+    // User: Cancel Join Request
+    socket.on(ACTIONS.CANCEL_JOIN_REQUEST, ({ roomId }) => {
+        const state = getRoomState(roomId);
+        if (state && state.admin) {
+            // Notify admin to remove from pending list
+            io.to(state.admin).emit(ACTIONS.DISCONNECTED, {
+                socketId: socket.id,
+            });
+        }
+        socket.waitingRoomId = null;
     });
 
     // Admin: Update Settings (Status/ReadOnly)
@@ -295,6 +311,17 @@ io.on('connection', (socket) => {
                 delete voiceParticipants[roomId];
             }
         });
+
+        // Handle disconnection of a waiting user
+        if (socket.waitingRoomId) {
+            const state = roomState[socket.waitingRoomId];
+            if (state && state.admin) {
+                io.to(state.admin).emit(ACTIONS.DISCONNECTED, {
+                    socketId: socket.id,
+                });
+            }
+        }
+
         delete userSocketMap[socket.id];
         socket.leave();
     });
@@ -303,7 +330,7 @@ io.on('connection', (socket) => {
 
     // User joins voice chat
     socket.on(ACTIONS.VOICE_JOIN, ({ roomId, username }) => {
-        console.log(`🎤 ${username} joined voice chat in room ${roomId}`);
+        console.log(`${username} joined voice chat in room ${roomId}`);
 
         // Initialize voice participants set for room if not exists
         if (!voiceParticipants[roomId]) {
@@ -324,7 +351,7 @@ io.on('connection', (socket) => {
 
     // User leaves voice chat
     socket.on(ACTIONS.VOICE_LEAVE, ({ roomId, username }) => {
-        console.log(`🔇 ${username} left voice chat in room ${roomId}`);
+        console.log(`${username} left voice chat in room ${roomId}`);
 
         if (voiceParticipants[roomId]) {
             voiceParticipants[roomId].delete(socket.id);
@@ -366,6 +393,6 @@ io.on('connection', (socket) => {
 
 // Start server - bind to 0.0.0.0 for Render
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📱 Environment: ${isProduction ? 'Production' : 'Development'}`);
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${isProduction ? 'Production' : 'Development'}`);
 });

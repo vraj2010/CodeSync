@@ -14,7 +14,7 @@ const Dashboard = () => {
         setIsCreating(true);
         const id = uuidV4();
         setRoomId(id);
-        toast.success('✨ New room created!');
+        toast.success('New room created!');
         setTimeout(() => setIsCreating(false), 500);
     };
 
