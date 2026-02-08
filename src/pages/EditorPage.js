@@ -203,7 +203,7 @@ const EditorPage = () => {
                 ACTIONS.DISCONNECTED,
                 ({ socketId, username }) => {
                     if (username) {
-                        toast(`❗${username}has left the workspace.`);
+                        toast(`⚠️ ${username} has left the workspace.`);
                     }
                     setClients((prev) => {
                         return prev.filter(
