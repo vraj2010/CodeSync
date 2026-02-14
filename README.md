@@ -6,11 +6,12 @@
 <!-- ![CodeSync Banner](./docs/banner.png) -->
 
 <p align="center">
-  <img src="./public/code-sync-text.png" alt="CodeSync Logo" width="120" />
+  <img src="./public/code-sync-text.png" alt="CodeSync Logo" width="150" />
 </p>
 
 <p align="center">
   <strong>Code. Create. Collaborate.</strong><br/>
+  <img src="./public/codesync-banner.png" alt="CodeSync Banner"/>
   A full-featured, real-time collaborative code editor built for teams — with live cursors, voice chat, admin controls, and multi-language code execution.
 </p>
 
