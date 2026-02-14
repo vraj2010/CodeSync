@@ -6,7 +6,7 @@
 <!-- ![CodeSync Banner](./docs/banner.png) -->
 
 <p align="center">
-  <img src="./public/code-sync.png" alt="CodeSync Logo" width="120" />
+  <img src="./public/code-sync-text.png" alt="CodeSync Logo" width="120" />
 </p>
 
 <p align="center">
