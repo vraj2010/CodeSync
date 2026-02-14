@@ -11,8 +11,6 @@
 
 <p align="center">
   <strong>Code. Create. Collaborate.</strong><br/>
-
-  [Live Demo](https://codesync-y66l.onrender.com/) • [Report Bug](https://github.com/your-username/codesync/issues) • [Request Feature](https://github.com/your-username/codesync/issues)
   A full-featured, real-time collaborative code editor built for teams — with live cursors, voice chat, admin controls, and multi-language code execution.
 </p>
 
