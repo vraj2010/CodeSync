@@ -418,81 +418,10 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ---
 
-## 🌐 Supported Languages
-
-CodeSync supports execution of **21 programming languages** via the Piston API:
-
-| | | | |
-| :---: | :---: | :---: | :---: |
-| JavaScript | Python | C++ | Java |
-| C | TypeScript | Go | Rust |
-| Ruby | PHP | C# | Swift |
-| Kotlin | Bash | Lua | Perl |
-| R | Scala | Haskell | Elixir |
-| Dart | | | |
-
----
-
-## 🔧 Troubleshooting
-
-<details>
-<summary><strong>WebSocket Connection Issues</strong></summary>
-
-- The app uses **long-polling** transport for maximum compatibility (especially on Render)
-- Socket.io has built-in auto-reconnection with exponential backoff
-- Check browser console for `❌ Socket connection error` messages
-- Verify `REACT_APP_BACKEND_URL` in `.env` matches your server
-
-</details>
-
-<details>
-<summary><strong>Voice Chat Not Working</strong></summary>
-
-- Ensure your browser allows **microphone access**
-- WebRTC requires HTTPS in production (HTTP works only on `localhost`)
-- If behind a strict NAT/firewall, STUN servers may not be sufficient — consider adding TURN servers
-- Check console for `ICE connection failed` errors
-
-</details>
-
-<details>
-<summary><strong>Code Execution Failures</strong></summary>
-
-- The Piston API has a **10-second execution timeout**
-- Some languages may not be available if the Piston server is under load
-- Check `/health` endpoint to verify server is running
-- Review `controllers/codeController.js` for error handling logic
-
-</details>
-
-<details>
-<summary><strong>Build Failures</strong></summary>
-
-- Ensure Node.js ≥ 18.0.0: `node --version`
-- Delete `node_modules` and `package-lock.json`, then run `npm install`
-- Check Render build logs for specific errors
-
-</details>
-
----
-
-## 🗺️ Roadmap
-
-- [ ] **File System** — Multiple file support with a tree-based file explorer
-- [ ] **Persistent Rooms** — MongoDB-backed room storage with history
-- [ ] **Git Integration** — Commit & push directly from the editor
-- [ ] **AI Code Assistant** — Inline AI suggestions and code completion
-- [ ] **Screen Sharing** — Share your screen alongside the code editor
-- [ ] **Themes** — Multiple editor themes beyond Dracula
-- [ ] **Export** — Download code as files or share as Gist
-
----
-
 ## 👨‍💻 Author
 
 <p>
-  <strong>Vraj Patel</strong><br/>
-  <a href="https://github.com/vraj2010">GitHub</a>
+  <a href="https://github.com/vraj2010">Vraj Patel</a>
 </p>
 
 ---
