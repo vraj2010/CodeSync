@@ -54,7 +54,7 @@ const executeCode = async (req, res) => {
         // Program output
         if (data.program_output) output += data.program_output;
         if (data.program_error) output += (output ? '\n' : '') + data.program_error;
-        if (data.program_message) output += (output ? '\n' : '') + data.program_message;
+
 
         // Signal output (e.g. killed)
         if (data.signal) output += (output ? '\n' : '') + `Signal: ${data.signal}`;
