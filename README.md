@@ -28,7 +28,7 @@
 - **Live cursor tracking** — See exactly where each collaborator is typing with color-coded, labeled cursors.
 - **WebRTC voice chat** — Communicate with your team via peer-to-peer voice, without leaving the editor.
 - **Admin-controlled room access** — Room creators become admins who can toggle public/private mode, approve or deny join requests, and enable read-only mode.
-- **21+ language support** — Write and execute code in JavaScript, Python, C++, Java, Go, Rust, and 15 more languages using the Piston execution engine.
+- **21+ language support** — Write and execute code in JavaScript, Python, C++, Java, Go, Rust, and 15 more languages using the Wandbox execution engine.
 
 > **The Goal:** Eliminate the need to screen-share or use separate voice tools during pair programming, code reviews, or technical interviews.
 
@@ -68,7 +68,7 @@ graph TD
 
     subgraph External ["External Services"]
         direction TB
-        Piston["🚀 Piston API<br/><i>Code Execution Engine</i>"]:::service
+        Wandbox["🚀 Wandbox API<br/><i>Code Execution Engine</i>"]:::service
         ClerkAPI["🔑 Clerk<br/><i>Authentication</i>"]:::service
         STUN["📡 Google STUN<br/><i>NAT Traversal</i>"]:::service
     end
@@ -80,7 +80,7 @@ graph TD
     SocketServer --> RoomManager
     Auth --> ClerkAPI
     UI --> |"Execute Code"| API
-    API --> |"POST /execute"| Piston
+    API --> |"POST /compile.json"| Wandbox
     Voice <-..-> |"P2P Audio Stream"| Voice
     Voice --> |"ICE Candidates"| STUN
     SocketServer -.-> |"Signaling<br/>(Offer/Answer/ICE)"| Voice
@@ -139,12 +139,12 @@ Voice chat is implemented as a **full-mesh, peer-to-peer** WebRTC topology:
 
 ### 4. Multi-Language Code Execution
 
-Code execution is handled server-side via the **Piston API**, supporting 21+ programming languages:
+Code execution is handled server-side via the **Wandbox API**, supporting 21+ programming languages:
 
 1. **Client** sends code + language + stdin → **Express API** (`/api/execute`)
-2. **Server** forwards to Piston with a 10-second execution timeout
-3. **Piston** compiles (if needed) and runs the code in a sandboxed environment
-4. **Output** (stdout/stderr + error status) is returned and synced to all room participants
+2. **Server** forwards to Wandbox with a 15-second execution timeout
+3. **Wandbox** compiles (if needed) and runs the code in a sandboxed environment
+4. **Output** (program output/error + compiler messages) is returned and synced to all room participants
 
 ---
 
@@ -179,7 +179,7 @@ This is the full lifecycle of a user joining and collaborating in a CodeSync roo
 
 6. ▶️ EXECUTE CODE
    ├─ User clicks "Run" → POST /api/execute
-   ├─ Piston API executes code in sandbox
+   ├─ Wandbox API executes code in sandbox
    └─ Output broadcast to all room participants
 
 7. 🚪 DISCONNECT
@@ -199,7 +199,7 @@ This is the full lifecycle of a user joining and collaborating in a CodeSync roo
 | **Live Cursors** | `setBookmark()` with color-coded cursor widgets | See exactly where each collaborator is typing |
 | **WebRTC Voice** | Full-mesh P2P with Google STUN servers | Zero-latency voice without a media server |
 | **Room Access Control** | Server-side state with admin/allow-list model | Private rooms with approval workflow |
-| **21+ Languages** | Piston API with sandboxed execution | Compile & run C++, Java, Rust, Go, and more |
+| **21+ Languages** | Wandbox API with sandboxed execution | Compile & run C++, Java, Rust, Go, and more |
 | **Clerk Authentication** | OAuth-based sign-in with protected routes | Secure, production-ready user management |
 | **Read-Only Mode** | Admin-toggled `readOnly` flag synced to all clients | Lock editing during code reviews or demos |
 | **Auto Admin Transfer** | On disconnect, admin role passes to next user | No single point of failure for room management |
@@ -228,13 +228,13 @@ This is the full lifecycle of a user joining and collaborating in a CodeSync roo
 | **Node.js** | JavaScript runtime |
 | **Express.js** | HTTP server & REST API |
 | **Socket.io** | Real-time event orchestration |
-| **Axios** | HTTP client for Piston API calls |
+| **Axios** | HTTP client for Wandbox API calls |
 | **CORS** | Cross-origin request handling |
 
 ### **External Services**
 | Service | Purpose |
 | :--- | :--- |
-| **Piston API** | Sandboxed multi-language code execution |
+| **Wandbox API** | Sandboxed multi-language code execution |
 | **Clerk** | OAuth authentication & user management |
 | **Google STUN** | NAT traversal for WebRTC |
 | **Render** | Cloud deployment platform |
@@ -251,7 +251,7 @@ code-sync/
 ├── .env.example                 # Environment variable template
 │
 ├── controllers/
-│   └── codeController.js        # Piston API integration for code execution
+│   └── codeController.js        # Wandbox API integration for code execution
 │
 ├── routes/
 │   └── codeRoutes.js            # REST API route definitions
@@ -270,7 +270,7 @@ code-sync/
     │   ├── Dashboard.js         # Room create/join interface
     │   ├── EditorPage.js        # Main collaborative editor view
     │   ├── SignInPage.js        # Clerk sign-in
-    │   └── SignUpPage.js        # Clerk sign-up
+    │   ├── SignUpPage.js        # Clerk sign-up
     │
     ├── components/
     │   ├── Editor.js            # CodeMirror editor + delta sync logic
@@ -289,7 +289,7 @@ code-sync/
     │   └── codeApi.js           # Code execution API client
     │
     └── utils/
-        ├── languageMapping.js   # Language → Piston/CodeMirror mappings
+        ├── languageMapping.js   # Language → Wandbox/CodeMirror mappings
         └── cursorColors.js      # User-specific cursor color generation
 ```
 
@@ -328,9 +328,8 @@ REACT_APP_BACKEND_URL=http://localhost:5000
 # Clerk Authentication (Required)
 REACT_APP_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
 
-# Code Execution (Optional — uses free Piston API by default)
-JUDGE0_API_URL=https://judge0-ce.p.rapidapi.com
-JUDGE0_API_KEY=your_api_key_here
+# Code Execution (Wandbox API is free & public - no key required!)
+# No configuration needed for code execution.
 
 # Production (auto-set by Render)
 # NODE_ENV=production
@@ -387,7 +386,7 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
 | `/health` | `GET` | Health check — returns server status, uptime, connected socket count |
-| `/api/execute` | `POST` | Execute code via Piston API |
+| `/api/execute` | `POST` | Execute code via Wandbox API |
 
 ### WebSocket Events
 
