@@ -760,6 +760,37 @@ textarea {
     font-size: 12px;
 }
 
+/* Language Version Display */
+.langVersion {
+    font-size: 11px;
+    color: #6b7280;
+    font-weight: 400;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    margin-left: 2px;
+}
+
+.langOptionName {
+    flex: 1;
+}
+
+.langOptionVersion {
+    font-size: 11px;
+    color: #4b5563;
+    font-weight: 400;
+    margin-left: auto;
+    padding-left: 8px;
+}
+
+.languageOption.selected .langOptionVersion {
+    color: rgba(74, 237, 136, 0.6);
+}
+
+.languageOption:hover .langOptionVersion {
+    color: #6b7280;
+}
+
 /* =====================================================
    Run Button
 ===================================================== */

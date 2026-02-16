@@ -10,7 +10,7 @@ import WaitingRoom from '../components/WaitingRoom';
 import { VoiceRoomProvider } from '../context/VoiceRoomContext';
 import { initSocket } from '../socket';
 import { executeCode } from '../api/codeApi';
-import { SUPPORTED_LANGUAGES, getPistonLanguage } from '../utils/languageMapping';
+import { SUPPORTED_LANGUAGES, getLanguageVersion } from '../utils/languageMapping';
 import {
     useLocation,
     useNavigate,
@@ -327,8 +327,9 @@ const EditorPage = () => {
         setIsError(false);
 
         try {
-            const pistonLanguage = getPistonLanguage(selectedLanguage);
-            const result = await executeCode(code, pistonLanguage, input);
+            // Pass the selected internal language ID directly (e.g., 'cpp', 'python')
+            // The API helper will convert it to Wandbox Compiler Name
+            const result = await executeCode(code, selectedLanguage, input);
 
             setOutput(result.output);
             setIsError(result.isError);
@@ -630,6 +631,7 @@ const EditorPage = () => {
                                 }}
                             >
                                 {SUPPORTED_LANGUAGES.find(l => l.id === selectedLanguage)?.name || 'Select'}
+                                <span className="langVersion">{getLanguageVersion(selectedLanguage)}</span>
                                 <span className="dropdownArrow">▼</span>
                             </button>
                             <div className="languageMenu">
@@ -643,7 +645,8 @@ const EditorPage = () => {
                                         }}
                                     >
                                         {selectedLanguage === lang.id && <span className="checkmark">✓</span>}
-                                        {lang.name}
+                                        <span className="langOptionName">{lang.name}</span>
+                                        <span className="langOptionVersion">{lang.version}</span>
                                     </button>
                                 ))}
                             </div>

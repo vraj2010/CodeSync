@@ -1,7 +1,9 @@
 /**
- * API service for code execution
- * Calls backend /api/execute endpoint (NOT Piston directly)
+ * API service for code execution via Backend -> Wandbox (No ID/Key)
+ * 
+ * We use the backend proxy to handle the API call.
  */
+import { getWandboxCompiler } from '../utils/languageMapping';
 
 // Detect backend URL based on environment
 const isLocalhost = typeof window !== 'undefined' &&
@@ -9,25 +11,33 @@ const isLocalhost = typeof window !== 'undefined' &&
 const BACKEND_URL = isLocalhost ? (process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000') : '';
 
 /**
- * Execute code via backend API
+ * Execute code via backend API (which calls Wandbox)
  * @param {string} sourceCode - The code to execute
- * @param {string} language - The programming language
- * @param {string} stdin - Standard input for the program
+ * @param {string} language - The programming language identifier (e.g., 'javascript')
+ * @param {string} stdin - Standard input for the program (optional)
  * @returns {Promise<{output: string, isError: boolean}>}
  */
 export const executeCode = async (sourceCode, language, stdin = '') => {
     try {
+        // Convert language string (e.g., 'javascript') to Wandbox Compiler Name (e.g., 'nodejs-20.17.0')
+        const compilerName = getWandboxCompiler(language);
+
         const response = await fetch(`${BACKEND_URL}/api/execute`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                language,
+                language: compilerName, // Backend expects 'language' field which is compiler name
                 code: sourceCode,
                 stdin: stdin,
             }),
         });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.output || `Execution failed with status ${response.status}`);
+        }
 
         const data = await response.json();
 
@@ -38,8 +48,10 @@ export const executeCode = async (sourceCode, language, stdin = '') => {
     } catch (error) {
         console.error('Code execution error:', error);
         return {
-            output: 'Error: Unable to connect to the server',
+            output: error.message || 'Error: Unable to connect to the server',
             isError: true,
         };
     }
 };
+
+

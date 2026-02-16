@@ -1,78 +1,33 @@
 /**
- * Language mapping for Piston API
- * Maps common language identifiers to Piston-compatible names
+ * Language mapping for Wandbox API (Free, Public)
+ * Maps common language identifiers to GUARANTEED EXISTING Wandbox compiler names
+ * Data verified via live API check.
  */
 
-// Map of common identifiers to Piston language names
-export const LANGUAGE_MAP = {
-    javascript: 'javascript',
-    js: 'javascript',
-    python: 'python',
-    py: 'python',
-    python3: 'python',
-    cpp: 'c++',
-    'c++': 'c++',
-    c: 'c',
-    java: 'java',
-    typescript: 'typescript',
-    ts: 'typescript',
-    go: 'go',
-    golang: 'go',
-    rust: 'rust',
-    rs: 'rust',
-    ruby: 'ruby',
-    rb: 'ruby',
-    php: 'php',
-    csharp: 'csharp',
-    'c#': 'csharp',
-    cs: 'csharp',
-    swift: 'swift',
-    kotlin: 'kotlin',
-    kt: 'kotlin',
-    bash: 'bash',
-    shell: 'bash',
-    sql: 'sql',
-    perl: 'perl',
-    r: 'r',
-    scala: 'scala',
-    lua: 'lua',
-    haskell: 'haskell',
-    elixir: 'elixir',
-    clojure: 'clojure',
-    dart: 'dart',
-    julia: 'julia',
-    pascal: 'pascal',
-    fortran: 'fortran',
-    cobol: 'cobol',
-    zig: 'zig',
-};
-
-// Supported languages with display names and Piston identifiers
 export const SUPPORTED_LANGUAGES = [
-    { id: 'javascript', name: 'JavaScript', pistonId: 'javascript' },
-    { id: 'python', name: 'Python', pistonId: 'python' },
-    { id: 'cpp', name: 'C++', pistonId: 'c++' },
-    { id: 'java', name: 'Java', pistonId: 'java' },
-    { id: 'c', name: 'C', pistonId: 'c' },
-    { id: 'typescript', name: 'TypeScript', pistonId: 'typescript' },
-    { id: 'go', name: 'Go', pistonId: 'go' },
-    { id: 'rust', name: 'Rust', pistonId: 'rust' },
-    { id: 'ruby', name: 'Ruby', pistonId: 'ruby' },
-    { id: 'php', name: 'PHP', pistonId: 'php' },
-    { id: 'csharp', name: 'C#', pistonId: 'csharp' },
-    { id: 'swift', name: 'Swift', pistonId: 'swift' },
-    { id: 'kotlin', name: 'Kotlin', pistonId: 'kotlin' },
-    { id: 'bash', name: 'Bash', pistonId: 'bash' },
-    { id: 'lua', name: 'Lua', pistonId: 'lua' },
-    { id: 'perl', name: 'Perl', pistonId: 'perl' },
-    { id: 'r', name: 'R', pistonId: 'r' },
-    { id: 'scala', name: 'Scala', pistonId: 'scala' },
-    { id: 'haskell', name: 'Haskell', pistonId: 'haskell' },
-    { id: 'elixir', name: 'Elixir', pistonId: 'elixir' },
-    { id: 'dart', name: 'Dart', pistonId: 'dart' },
+    // EXACT verified strings, but with CLEANER UI names
+    { id: 'javascript', name: 'JavaScript', wandboxCompiler: 'nodejs-18.20.4', version: '18.20.4', ext: '.js' },
+    { id: 'python', name: 'Python', wandboxCompiler: 'cpython-3.7.17', version: '3.7.17', ext: '.py' },
+    { id: 'cpp', name: 'C++', wandboxCompiler: 'gcc-13.2.0', version: 'GCC 13.2.0', ext: '.cpp' },
+    { id: 'java', name: 'Java', wandboxCompiler: 'openjdk-jdk-21+35', version: 'OpenJDK 21', ext: '.java' },
+    { id: 'c', name: 'C', wandboxCompiler: 'gcc-13.2.0-c', version: 'GCC 13.2.0', ext: '.c' },
+    { id: 'typescript', name: 'TypeScript', wandboxCompiler: 'typescript-5.0.3', version: '5.0.3', ext: '.ts' },
+    { id: 'go', name: 'Go', wandboxCompiler: 'go-1.14.15', version: '1.14.15', ext: '.go' },
+    { id: 'rust', name: 'Rust', wandboxCompiler: 'rust-1.64.0', version: '1.64.0', ext: '.rs' },
+    { id: 'bash', name: 'Bash', wandboxCompiler: 'bash', version: '5.2.0', ext: '.sh' },
+    { id: 'lua', name: 'Lua', wandboxCompiler: 'lua-5.4.4', version: '5.4.4', ext: '.lua' },
+    { id: 'perl', name: 'Perl', wandboxCompiler: 'perl-5.36.0', version: '5.36.0', ext: '.pl' },
+    { id: 'r', name: 'R', wandboxCompiler: 'r-4.2.3', version: '4.2.3', ext: '.r' },
+    { id: 'ruby', name: 'Ruby', wandboxCompiler: 'ruby-3.2.1', version: '3.2.1', ext: '.rb' },
+    { id: 'php', name: 'PHP', wandboxCompiler: 'php-8.2.4', version: '8.2.4', ext: '.php' },
+    { id: 'csharp', name: 'C#', wandboxCompiler: 'mono-6.12.0.122-head', version: 'Mono 6.12', ext: '.cs' },
+    { id: 'swift', name: 'Swift', wandboxCompiler: 'swift-5.8', version: '5.8', ext: '.swift' },
+    { id: 'kotlin', name: 'Kotlin', wandboxCompiler: 'kotlin-1.8.10', version: '1.8.10', ext: '.kt' },
+    { id: 'scala', name: 'Scala', wandboxCompiler: 'scala-3.2.2', version: '3.2.2', ext: '.scala' },
+    { id: 'haskell', name: 'Haskell', wandboxCompiler: 'ghc-9.4.4', version: 'GHC 9.4.4', ext: '.hs' },
+    { id: 'elixir', name: 'Elixir', wandboxCompiler: 'elixir-1.14.3', version: '1.14.3', ext: '.ex' },
 ];
 
-// CodeMirror mode mapping
 export const CODEMIRROR_MODES = {
     javascript: { name: 'javascript', json: true },
     python: { name: 'python' },
@@ -94,33 +49,22 @@ export const CODEMIRROR_MODES = {
     scala: { name: 'text/x-scala' },
     haskell: { name: 'haskell' },
     elixir: { name: 'elixir' },
-    dart: { name: 'dart' },
 };
 
-/**
- * Get Piston-compatible language name
- * @param {string} language - Language identifier
- * @returns {string} Piston language name
- */
-export const getPistonLanguage = (language) => {
-    const normalized = language.toLowerCase().trim();
-    return LANGUAGE_MAP[normalized] || normalized;
+export const getWandboxCompiler = (language) => {
+    const lang = SUPPORTED_LANGUAGES.find(l => l.id === language);
+    return lang ? lang.wandboxCompiler : 'nodejs-18.20.4';
 };
 
-/**
- * Get CodeMirror mode for a language
- * @param {string} language - Language identifier
- * @returns {Object} CodeMirror mode configuration
- */
 export const getCodeMirrorMode = (language) => {
     return CODEMIRROR_MODES[language] || { name: 'javascript', json: true };
 };
 
-/**
- * Get default code template for a language
- * @param {string} language - Language identifier
- * @returns {string} Default code template
- */
+export const getLanguageVersion = (languageId) => {
+    const lang = SUPPORTED_LANGUAGES.find(l => l.id === languageId);
+    return lang ? lang.version : '';
+};
+
 export const getDefaultCode = (language) => {
     const templates = {
         javascript: '// JavaScript\nconsole.log("Hello, World!");',
@@ -143,7 +87,6 @@ export const getDefaultCode = (language) => {
         scala: '// Scala\nobject Main extends App {\n    println("Hello, World!")\n}',
         haskell: '-- Haskell\nmain = putStrLn "Hello, World!"',
         elixir: '# Elixir\nIO.puts "Hello, World!"',
-        dart: '// Dart\nvoid main() {\n  print("Hello, World!");\n}',
     };
     return templates[language] || '// Write your code here';
 };

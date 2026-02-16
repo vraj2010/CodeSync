@@ -1,10 +1,12 @@
 const axios = require('axios');
 
-// Piston API endpoint
-const PISTON_API_URL = 'https://emkc.org/api/v2/piston/execute';
+// Wandbox API (Free, Public, No Key)
+const WANDBOX_API_URL = 'https://wandbox.org/api/compile.json';
 
 /**
- * Execute code using the Piston API
+ * Execute code using Wandbox API
+ * POST /api/execute
+ * 
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
@@ -14,7 +16,7 @@ const executeCode = async (req, res) => {
     // Validation
     if (!language) {
         return res.status(400).json({
-            output: 'Error: Language is required',
+            output: 'Error: Language compiler name is required',
             isError: true
         });
     }
@@ -27,68 +29,57 @@ const executeCode = async (req, res) => {
     }
 
     try {
-        const response = await axios.post(PISTON_API_URL, {
-            language: language,
-            version: '*',
-            files: [
-                { content: code }
-            ],
-            // Add stdin for user input
-            stdin: stdin || '',
-            // Execution options
-            run_timeout: 10000, // 10 seconds timeout
-            compile_timeout: 10000,
-        }, {
+        const payload = {
+            compiler: language,  // Wandbox expects 'compiler' field
+            code: code,
+            stdin: stdin || ''
+        };
+
+        const response = await axios.post(WANDBOX_API_URL, payload, {
             headers: {
                 'Content-Type': 'application/json'
             },
-            timeout: 30000 // 30 second timeout for the HTTP request
+            timeout: 15000 // 15 seconds timeout
         });
 
-        const { run, compile } = response.data;
+        const data = response.data;
 
-        // Check for compile errors first
-        if (compile && compile.stderr && compile.stderr.trim() !== '') {
-            return res.json({
-                output: `Compilation Error:\n${compile.stderr}`,
-                isError: true
-            });
-        }
-
-        // Check if there's an error in stderr or if the exit code is non-zero
-        const hasError = (run.stderr && run.stderr.trim() !== '') || run.code !== 0;
-
-        // Combine stdout and stderr for complete output
+        // Combine outputs
         let output = '';
-        if (run.stdout) output += run.stdout;
-        if (run.stderr) output += (output ? '\n' : '') + run.stderr;
+
+        // Compiler output (warnings/errors)
+        if (data.compiler_output) output += data.compiler_output + '\n';
+        if (data.compiler_error) output += data.compiler_error + '\n';
+
+        // Program output
+        if (data.program_output) output += data.program_output;
+        if (data.program_error) output += (output ? '\n' : '') + data.program_error;
+        if (data.program_message) output += (output ? '\n' : '') + data.program_message;
+
+        // Signal output (e.g. killed)
+        if (data.signal) output += (output ? '\n' : '') + `Signal: ${data.signal}`;
+
+        // Status 0 means success
+        const isError = data.status !== '0';
 
         return res.json({
             output: output || 'No output',
-            isError: hasError
+            isError: isError
         });
 
     } catch (error) {
-        console.error('Piston API Error:', error.message);
-
-        // Handle different error types
+        console.error('Wandbox API Error:', error.message);
         if (error.response) {
-            // Piston API returned an error
+            console.error('Wandbox Response:', error.response.data);
             return res.status(error.response.status).json({
-                output: error.response.data?.message || 'Execution failed',
-                isError: true
-            });
-        } else if (error.code === 'ECONNABORTED') {
-            return res.status(408).json({
-                output: 'Execution timed out',
-                isError: true
-            });
-        } else {
-            return res.status(500).json({
-                output: 'Server error: Unable to execute code',
+                output: `Error: ${error.response.data?.message || 'Execution failed on Wandbox'}`,
                 isError: true
             });
         }
+        return res.status(500).json({
+            output: 'Server error: Unable to execute code. Please try again.',
+            isError: true
+        });
     }
 };
 

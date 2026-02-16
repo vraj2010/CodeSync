@@ -28,7 +28,6 @@ const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clie
     const editorRef = useRef(null);
     const remoteCursorsRef = useRef({}); // Store remote cursor elements
     const isRemoteChange = useRef(false); // Track if change is from remote
-    const pendingChanges = useRef([]); // Queue for changes during remote updates
     const documentVersion = useRef(0); // Track document version for conflict resolution
 
     // Create or update remote cursor element
@@ -99,7 +98,7 @@ const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clie
         isRemoteChange.current = true;
 
         try {
-            const { from, to, text, removed } = delta;
+            const { from, to, text } = delta;
 
             // Apply the change
             editor.replaceRange(
@@ -166,6 +165,7 @@ const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clie
             });
         }
         init();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Update mode when language changes
@@ -184,10 +184,11 @@ const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clie
 
     // Handle socket events
     useEffect(() => {
-        if (socketRef.current) {
+        const socket = socketRef.current;
+        if (socket) {
             // Handle remote delta changes (preferred method)
             const handleDelta = ({ delta, socketId }) => {
-                if (editorRef.current && socketId !== socketRef.current.id) {
+                if (editorRef.current && socketId !== socket.id) {
                     applyDelta(delta);
                 }
             };
@@ -217,19 +218,19 @@ const Editor = ({ socketRef, roomId, onCodeChange, language = 'javascript', clie
                 removeRemoteCursor(socketId);
             };
 
-            socketRef.current.on(ACTIONS.CODE_DELTA, handleDelta);
-            socketRef.current.on(ACTIONS.CODE_CHANGE, handleCodeChange);
-            socketRef.current.on(ACTIONS.CURSOR_CHANGE, handleCursorChange);
-            socketRef.current.on(ACTIONS.DISCONNECTED, handleDisconnect);
+            socket.on(ACTIONS.CODE_DELTA, handleDelta);
+            socket.on(ACTIONS.CODE_CHANGE, handleCodeChange);
+            socket.on(ACTIONS.CURSOR_CHANGE, handleCursorChange);
+            socket.on(ACTIONS.DISCONNECTED, handleDisconnect);
 
             return () => {
-                socketRef.current.off(ACTIONS.CODE_DELTA, handleDelta);
-                socketRef.current.off(ACTIONS.CODE_CHANGE, handleCodeChange);
-                socketRef.current.off(ACTIONS.CURSOR_CHANGE, handleCursorChange);
-                socketRef.current.off(ACTIONS.DISCONNECTED, handleDisconnect);
+                socket.off(ACTIONS.CODE_DELTA, handleDelta);
+                socket.off(ACTIONS.CODE_CHANGE, handleCodeChange);
+                socket.off(ACTIONS.CURSOR_CHANGE, handleCursorChange);
+                socket.off(ACTIONS.DISCONNECTED, handleDisconnect);
             };
         }
-    }, [socketRef.current, currentUsername, updateRemoteCursor, removeRemoteCursor, applyDelta]);
+    }, [socketRef, currentUsername, updateRemoteCursor, removeRemoteCursor, applyDelta]);
 
     return <textarea id="realtimeEditor"></textarea>;
 };
