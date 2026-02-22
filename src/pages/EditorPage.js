@@ -164,57 +164,6 @@ const EditorPage = () => {
                 reactNavigator('/dashboard');
             }
 
-            socketRef.current.emit(ACTIONS.JOIN, {
-                roomId,
-                username: currentUsername,
-            });
-
-            // Mark socket as connected for voice chat
-            setIsSocketConnected(true);
-
-            // Listening for joined event
-            socketRef.current.on(
-                ACTIONS.JOINED,
-                ({ clients, username, socketId }) => {
-                    if (username !== currentUsername) {
-                        toast.success(`${username} has joined the workspace.`);
-                        console.log(`${username} joined`);
-                    }
-                    setClients(clients);
-                    socketRef.current.emit(ACTIONS.SYNC_CODE, {
-                        code: codeRef.current,
-                        socketId,
-                    });
-                    // Sync language to new user
-                    socketRef.current.emit(ACTIONS.SYNC_LANGUAGE, {
-                        language: selectedLanguageRef.current,
-                        socketId,
-                    });
-                    // Sync input to new user
-                    socketRef.current.emit(ACTIONS.SYNC_INPUT, {
-                        input: inputRef.current,
-                        socketId,
-                    });
-                }
-            );
-
-            // Listening for disconnected
-            socketRef.current.on(
-                ACTIONS.DISCONNECTED,
-                ({ socketId, username }) => {
-                    if (username) {
-                        toast(`⚠️ ${username} has left the workspace.`);
-                    }
-                    setClients((prev) => {
-                        return prev.filter(
-                            (client) => client.socketId !== socketId
-                        );
-                    });
-                    // Remove from pending requests if they were waiting
-                    setPendingRequests((prev) => prev.filter(r => r.socketId !== socketId));
-                }
-            );
-
             // Listen for language changes from other users
             socketRef.current.on(ACTIONS.LANGUAGE_CHANGE, ({ language }) => {
                 setSelectedLanguage(language);
@@ -264,6 +213,64 @@ const EditorPage = () => {
                     return [...prev, { username, socketId }];
                 });
             });
+
+            // Listening for joined event
+            socketRef.current.on(
+                ACTIONS.JOINED,
+                ({ clients, username, socketId }) => {
+                    if (username !== currentUsername) {
+                        toast.success(`${username} has joined the workspace.`);
+                        console.log(`${username} joined`);
+
+                        // ONLY existing users should sync their state to the newcomer
+                        // This prevents the newcomer from syncing their initial empty state to themselves
+                        socketRef.current.emit(ACTIONS.SYNC_CODE, {
+                            code: codeRef.current,
+                            socketId,
+                            roomId,
+                        });
+                        // Sync language to new user
+                        socketRef.current.emit(ACTIONS.SYNC_LANGUAGE, {
+                            language: selectedLanguageRef.current,
+                            socketId,
+                            roomId,
+                        });
+                        // Sync input to new user
+                        socketRef.current.emit(ACTIONS.SYNC_INPUT, {
+                            input: inputRef.current,
+                            socketId,
+                            roomId,
+                        });
+                    }
+                    setClients(clients);
+                }
+            );
+
+            // Listening for disconnected
+            socketRef.current.on(
+                ACTIONS.DISCONNECTED,
+                ({ socketId, username }) => {
+                    if (username) {
+                        toast(`⚠️ ${username} has left the workspace.`);
+                    }
+                    setClients((prev) => {
+                        return prev.filter(
+                            (client) => client.socketId !== socketId
+                        );
+                    });
+                    // Remove from pending requests if they were waiting
+                    setPendingRequests((prev) => prev.filter(r => r.socketId !== socketId));
+                }
+            );
+
+            socketRef.current.emit(ACTIONS.JOIN, {
+                roomId,
+                username: currentUsername,
+            });
+
+            // Mark socket as connected for voice chat
+            setIsSocketConnected(true);
+
         };
         init();
         return () => {

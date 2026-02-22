@@ -228,7 +228,11 @@ io.on('connection', (socket) => {
         socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
     });
 
-    socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
+    socket.on(ACTIONS.SYNC_CODE, ({ socketId, code, roomId }) => {
+        if (roomId) {
+            const state = getRoomState(roomId);
+            state.code = code;
+        }
         io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
     });
 
@@ -239,7 +243,11 @@ io.on('connection', (socket) => {
         socket.in(roomId).emit(ACTIONS.LANGUAGE_CHANGE, { language });
     });
 
-    socket.on(ACTIONS.SYNC_LANGUAGE, ({ socketId, language }) => {
+    socket.on(ACTIONS.SYNC_LANGUAGE, ({ socketId, language, roomId }) => {
+        if (roomId) {
+            const state = getRoomState(roomId);
+            state.language = language;
+        }
         io.to(socketId).emit(ACTIONS.LANGUAGE_CHANGE, { language });
     });
 
@@ -264,9 +272,15 @@ io.on('connection', (socket) => {
         socket.in(roomId).emit(ACTIONS.INPUT_CHANGE, { input });
     });
 
-    socket.on(ACTIONS.SYNC_INPUT, ({ socketId, input }) => {
+    socket.on(ACTIONS.SYNC_INPUT, ({ socketId, input, roomId }) => {
+        // Update state if roomId is provided
+        if (roomId) {
+            const state = getRoomState(roomId);
+            state.input = input;
+        }
         io.to(socketId).emit(ACTIONS.INPUT_CHANGE, { input });
     });
+
 
     socket.on('disconnecting', () => {
         const rooms = [...socket.rooms];
