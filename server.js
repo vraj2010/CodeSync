@@ -7,6 +7,7 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 const ACTIONS = require('./src/Actions');
 const codeRoutes = require('./routes/codeRoutes');
+const { verifyClerkToken } = require('./utils/clerkAuth');
 
 // Environment
 const isProduction = process.env.NODE_ENV === 'production';
@@ -37,13 +38,33 @@ const io = new Server(server, {
     // Connection state recovery
     connectionStateRecovery: {
         maxDisconnectionDuration: 2 * 60 * 1000,
-        skipMiddlewares: true,
+        // Must stay false so the Clerk auth middleware below re-runs on a
+        // recovered session instead of being bypassed.
+        skipMiddlewares: false,
     }
 });
 
 // Log all socket.io errors
 io.engine.on('connection_error', (err) => {
     console.error('Socket.io connection error:', err.code, err.message);
+});
+
+// Require a valid Clerk session token before ANY connection handler runs.
+// Rejecting here means JOIN / CODE_DELTA / ADMIN_UPDATE never fire for an
+// unauthenticated socket.
+io.use(async (socket, next) => {
+    const token = socket.handshake.auth?.token;
+
+    try {
+        const payload = await verifyClerkToken(token);
+        socket.userId = payload.sub;
+        next();
+    } catch (error) {
+        console.warn(
+            `Socket auth rejected (${socket.id}): ${error.message} | token present: ${!!token}`
+        );
+        next(new Error('Authentication required'));
+    }
 });
 
 // Middleware - Allow all origins for API requests

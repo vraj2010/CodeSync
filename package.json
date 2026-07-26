@@ -6,6 +6,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@clerk/backend": "^3.13.1",
     "@clerk/clerk-react": "^5.60.0",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.3",

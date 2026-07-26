@@ -1,6 +1,9 @@
 import { io } from 'socket.io-client';
 
-export const initSocket = async () => {
+/**
+ * @param {() => Promise<string|null>} getToken - Clerk's useAuth().getToken
+ */
+export const initSocket = async (getToken) => {
     // IMPORTANT: In production, ALWAYS use the current URL origin
     // REACT_APP_BACKEND_URL is ONLY for local development
     const isLocalhost = window.location.hostname === 'localhost' ||
@@ -27,6 +30,13 @@ export const initSocket = async () => {
         transports: ['polling'],
         // Path must match server
         path: '/socket.io/',
+        // A function (not a plain object) so socket.io-client re-invokes it on
+        // every connect AND every automatic reconnect. Clerk session tokens
+        // expire in ~60s, so a token captured once would go stale immediately.
+        auth: async (cb) => {
+            const token = getToken ? await getToken() : null;
+            cb({ token });
+        },
     };
 
     const socket = io(backendUrl, options);

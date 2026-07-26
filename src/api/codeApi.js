@@ -15,9 +15,10 @@ const BACKEND_URL = isLocalhost ? (process.env.REACT_APP_BACKEND_URL || 'http://
  * @param {string} sourceCode - The code to execute
  * @param {string} language - The programming language identifier (e.g., 'javascript')
  * @param {string} stdin - Standard input for the program (optional)
+ * @param {string} token - Clerk session token, sent as a Bearer credential
  * @returns {Promise<{output: string, isError: boolean}>}
  */
-export const executeCode = async (sourceCode, language, stdin = '') => {
+export const executeCode = async (sourceCode, language, stdin = '', token = null) => {
     try {
         // Convert language string (e.g., 'javascript') to Wandbox Compiler Name (e.g., 'nodejs-20.17.0')
         const compilerName = getWandboxCompiler(language);
@@ -26,6 +27,7 @@ export const executeCode = async (sourceCode, language, stdin = '') => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
             body: JSON.stringify({
                 language: compilerName, // Backend expects 'language' field which is compiler name

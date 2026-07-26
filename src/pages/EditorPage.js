@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { useUser, UserButton } from '@clerk/clerk-react';
+import { useUser, useAuth, UserButton } from '@clerk/clerk-react';
 import ACTIONS from '../Actions';
 import Client from '../components/Client';
 import Editor from '../components/Editor';
@@ -27,6 +27,7 @@ const EditorPage = () => {
 
     // Get Clerk user info
     const { user, isLoaded: isUserLoaded } = useUser();
+    const { getToken } = useAuth();
 
     // Mobile sidebar state
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -154,7 +155,7 @@ const EditorPage = () => {
         if (!isUserLoaded) return;
 
         const init = async () => {
-            socketRef.current = await initSocket();
+            socketRef.current = await initSocket(getToken);
             socketRef.current.on('connect_error', (err) => handleErrors(err));
             socketRef.current.on('connect_failed', (err) => handleErrors(err));
 
@@ -288,7 +289,7 @@ const EditorPage = () => {
                 socketRef.current.off(ACTIONS.REQUEST_JOIN);
             }
         };
-    }, [isUserLoaded, currentUsername, roomId, reactNavigator, inputRef, selectedLanguageRef]);
+    }, [isUserLoaded, currentUsername, roomId, reactNavigator, inputRef, selectedLanguageRef, getToken]);
 
     // Handle language change
     const handleLanguageChange = useCallback((e) => {
@@ -336,7 +337,8 @@ const EditorPage = () => {
         try {
             // Pass the selected internal language ID directly (e.g., 'cpp', 'python')
             // The API helper will convert it to Wandbox Compiler Name
-            const result = await executeCode(code, selectedLanguage, input);
+            const token = await getToken();
+            const result = await executeCode(code, selectedLanguage, input, token);
 
             setOutput(result.output);
             setIsError(result.isError);
@@ -364,7 +366,7 @@ const EditorPage = () => {
             setIsRunning(false);
             isRunningRef.current = false;
         }
-    }, [selectedLanguage, roomId, input]);
+    }, [selectedLanguage, roomId, input, getToken]);
 
     // Handle approve request
     const handleApproveRequest = useCallback((socketId, username) => {
