@@ -3,6 +3,9 @@ const axios = require('axios');
 // Wandbox API (Free, Public, No Key)
 const WANDBOX_API_URL = 'https://wandbox.org/api/compile.json';
 
+// Cap on each of code and stdin before anything is forwarded upstream.
+const MAX_FIELD_LENGTH = 20 * 1024; // 20 KB
+
 /**
  * Execute code using Wandbox API
  * POST /api/execute
@@ -26,6 +29,26 @@ const executeCode = async (req, res) => {
             output: 'Error: Code is required',
             isError: true
         });
+    }
+
+    // Buffer.byteLength, not String.length: the latter counts UTF-16 code units,
+    // which understates the real size of any multi-byte source we forward.
+    const codeBytes = Buffer.byteLength(code, 'utf8');
+    if (codeBytes > MAX_FIELD_LENGTH) {
+        return res.status(413).json({
+            output: `Error: Code is too large (${codeBytes} bytes). The limit is ${MAX_FIELD_LENGTH} bytes.`,
+            isError: true
+        });
+    }
+
+    if (typeof stdin === 'string') {
+        const stdinBytes = Buffer.byteLength(stdin, 'utf8');
+        if (stdinBytes > MAX_FIELD_LENGTH) {
+            return res.status(413).json({
+                output: `Error: Input is too large (${stdinBytes} bytes). The limit is ${MAX_FIELD_LENGTH} bytes.`,
+                isError: true
+            });
+        }
     }
 
     try {
